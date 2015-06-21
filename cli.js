@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 'use strict';
-
 var fs = require('fs');
 var path = require('path');
 var meow = require('meow');
 var getStdin = require('get-stdin');
 var pathExists = require('path-exists');
-var Imagemin = require('./');
+var Imagemin = require('imagemin');
 
 var cli = meow({
 	help: [

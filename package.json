@@ -1,0 +1,45 @@
+{
+  "name": "imagemin-cli",
+  "version": "1.0.0",
+  "description": "Minify images",
+  "license": "MIT",
+  "repository": "imagemin/imagemin-cli",
+  "author": {
+    "name": "Kevin Mårtensson",
+    "email": "kevinmartensson@gmail.com",
+    "url": "github.com/kevva"
+  },
+  "bin": {
+    "imagemin": "cli.js"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "files": [
+    "cli.js"
+  ],
+  "keywords": [
+    "cli",
+    "cli-app",
+    "compress",
+    "gif",
+    "image",
+    "jpeg",
+    "minify",
+    "png",
+    "svg"
+  ],
+  "dependencies": {
+    "get-stdin": "^4.0.1",
+    "imagemin": "^3.2.0",
+    "meow": "^3.3.0",
+    "path-exists": "^1.0.0"
+  },
+  "devDependencies": {
+    "ava": "^0.0.4",
+    "concat-stream": "^1.5.0"
+  }
+}
