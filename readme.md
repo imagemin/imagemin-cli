@@ -2,6 +2,8 @@
 
 > Minify images
 
+*Issues with the output should be reported on the imagemin [issue tracker](https://github.com/imagemin/imagemin/issues).*
+
 
 ## Install
 
