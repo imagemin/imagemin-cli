@@ -2,6 +2,7 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
+var arrify = require('arrify');
 var meow = require('meow');
 var getStdin = require('get-stdin');
 var pathExists = require('path-exists');
@@ -14,14 +15,17 @@ var cli = meow({
 		'  $ imagemin <directory> <output>',
 		'  $ imagemin <file> > <output>',
 		'  $ cat <file> | imagemin > <output>',
+		'  $ imagemin [--plugin <plugin-name>...] ...',
 		'',
 		'Example',
 		'  $ imagemin images/* build',
 		'  $ imagemin images build',
 		'  $ imagemin foo.png > foo-optimized.png',
 		'  $ cat foo.png | imagemin > foo-optimized.png',
+		'  $ imagemin -P pngquant foo.png > foo-optimized.png',
 		'',
 		'Options',
+		'  -P, --plugin                        Override the default plugins',
 		'  -i, --interlaced                    Interlace gif for progressive rendering',
 		'  -o, --optimizationLevel <number>    Optimization level between 0 and 7',
 		'  -p, --progressive                   Lossless conversion to progressive'
@@ -32,9 +36,12 @@ var cli = meow({
 		'progressive'
 	],
 	string: [
-		'optimizationLevel'
+		'plugin',
+		'optimizationLevel',
+		'install'
 	],
 	alias: {
+		P: 'plugin',
 		i: 'interlaced',
 		o: 'optimizationLevel',
 		p: 'progressive'
@@ -53,13 +60,41 @@ function isFile(path) {
 	}
 }
 
+var DEFAULT_PLUGINS = ['gifsicle', 'jpegtran', 'optipng', 'svgo'];
+
 function run(src, dest) {
-	var imagemin = new Imagemin()
-		.src(src)
-		.use(Imagemin.gifsicle(cli.flags))
-		.use(Imagemin.jpegtran(cli.flags))
-		.use(Imagemin.optipng(cli.flags))
-		.use(Imagemin.svgo());
+	var plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
+	var imagemin = new Imagemin().src(src);
+
+	plugins.forEach(function (name) {
+		var plugin;
+		switch (name) {
+			case 'gifsicle':
+			case 'jpegtran':
+			case 'optipng':
+				plugin = Imagemin[name](cli.flags);
+				break;
+			case 'svgo':
+				plugin = Imagemin.svgo();
+				break;
+			default:
+				try {
+					plugin = require('imagemin-' + name)(cli.flags);
+				} catch (err) {
+					console.error([
+						'Unknown plugin ' + name,
+						'',
+						'Maybe you forgot to install the plugin?',
+						'You can install it with:',
+						'  $ npm install -g imagemin-' + name
+					].join('\n'));
+					process.exit(1);
+				}
+				break;
+		}
+
+		imagemin.use(plugin);
+	});
 
 	if (process.stdout.isTTY) {
 		imagemin.dest(dest ? dest : 'build');
