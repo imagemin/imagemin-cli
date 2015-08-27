@@ -2,7 +2,6 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var arrify = require('arrify');
 var meow = require('meow');
 var getStdin = require('get-stdin');
 var Imagemin = require('imagemin');
@@ -55,8 +54,11 @@ var DEFAULT_PLUGINS = ['gifsicle', 'jpegtran', 'optipng', 'svgo'];
 var cwd = process.cwd();
 
 function run(src, dest, destName) {
+	var plugins = cli.flags.plugin || DEFAULT_PLUGINS;
+	if (!Array.isArray(plugins)) {
+		plugins = [plugins];
+	}
 
-	var plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
 	var imagemin = new Imagemin().src(src);
 
 	plugins.forEach(function (name) {

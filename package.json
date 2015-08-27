@@ -33,7 +33,6 @@
     "svg"
   ],
   "dependencies": {
-    "arrify": "^1.0.0",
     "get-stdin": "^4.0.1",
     "imagemin": "^3.2.0",
     "meow": "^3.3.0"
