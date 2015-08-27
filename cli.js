@@ -27,12 +27,14 @@ var cli = meow({
 		'      --interlaced                    interlace gif for progressive rendering',
 		'      --optimization-level <number>   optimization level between 0 and 7',
 		'      --progressive                   lossless conversion to progressive',
+		'  -v, --verbose                       logs each file as it gets minified',
 		'  -h, --help                          show this help'
 	]
 }, {
 	boolean: [
 		'interlaced',
-		'progressive'
+		'progressive',
+		'verbose'
 	],
 	string: [
 		'plugin',
@@ -41,7 +43,8 @@ var cli = meow({
 	],
 	alias: {
 		p: 'plugin',
-		o: 'output'
+		o: 'output',
+		v: 'verbose'
 	}
 });
 
@@ -126,11 +129,39 @@ function run(src, dest, destName) {
 
 	var streams = imagemin.streams;
 	var srcStream = streams[0];
+	var lastStream = streams[streams.length - 2];
+	var files = {};
+	var verbose = cli.flags.verbose;
 	srcStream.on('data', function (file) {
+		var originalPath = file.relative;
 		if (destName) {
 			file.path = path.join(path.dirname(file.path), destName);
 		}
+
+		if (verbose && file.contents) {
+			files[file.relative] = {
+				size: file.contents.length,
+				path: originalPath
+			};
+		}
 	});
+
+	if (cli.flags.verbose && srcStream !== lastStream) {
+		lastStream.on('data', function (file) {
+			if (file.contents) {
+				var relative = file.relative;
+				var savings = file.contents.length / files[relative].size;
+				var location = '';
+				if (dest) {
+					location = ' -> '
+						+ path.relative(cwd, path.join(dest, relative));
+				}
+
+				console.error(files[relative].path + location
+						+ ' (' + Math.round(savings * 100) + '% smaller)');
+			}
+		});
+	}
 }
 
 if (!cli.input.length && process.stdin.isTTY) {
