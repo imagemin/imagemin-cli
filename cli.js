@@ -76,8 +76,16 @@ function run(src, dest, destName) {
 				plugin = Imagemin.svgo();
 				break;
 			default:
+				// workaround pngquant bug
+				var opts = {};
+				for (var key in cli.flags) {
+					if (name !== 'pngquant' && key !== 'verbose') {
+						opts[key] = cli.flags[key];
+					}
+				}
+
 				try {
-					plugin = require('imagemin-' + name)(cli.flags);
+					plugin = require('imagemin-' + name)(opts);
 				} catch (err) {
 					exitWithMessage([
 						'Unknown plugin ' + name,
