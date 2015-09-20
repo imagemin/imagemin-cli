@@ -1,115 +1,94 @@
-'use strict';
-var fs = require('fs');
-var path = require('path');
-var spawn = require('child_process').spawn;
-var concatStream = require('concat-stream');
-var test = require('ava');
+import fs from 'fs';
+import path from'path';
+import {spawn} from 'child_process';
+import concatStream from 'concat-stream';
+import test from 'ava';
 
-test('show help screen', function (t) {
-	t.plan(1);
+const cliPath = path.join(__dirname, '../cli.js');
 
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'), ['--help']);
-
-	function end(str) {
-		t.assert(/Minify images/.test(str), str);
-	}
+test('show help screen', t => {
+	var cp = spawn(cliPath, ['--help']);
 
 	cp.stdout.setEncoding('utf8');
-	cp.stdout.pipe(concat);
+	cp.stdout.pipe(concatStream(str => {
+		t.regexTest(/Minify images/, str);
+		t.end();
+	}));
 });
 
-test('show version', function (t) {
-	t.plan(1);
-
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'), ['--version']);
+test('show version', t => {
+	var cp = spawn(cliPath, ['--version']);
 	var version = require('../package.json').version;
 
-	function end(str) {
-		t.assert(str.trim() === version, str.trim());
-	}
-
 	cp.stdout.setEncoding('utf8');
-	cp.stdout.pipe(concat);
+	cp.stdout.pipe(concatStream(str => {
+		t.is(str.trim(), version);
+		t.end();
+	}));
 });
 
-test('optimize a GIF', function (t) {
-	t.plan(2);
+test('optimize a GIF', t => {
+	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.gif'));
+	var cp = spawn(cliPath);
 
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixtures/test.gif'));
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'));
+	cp.stdout.pipe(concatStream(buf => {
+		t.ok(buf.length < fixture.length);
+		t.ok(buf.length > 0);
+		t.end();
+	}));
 
-	function end(buf) {
-		t.assert(buf.length < fixture.length, buf.length);
-		t.assert(buf.length > 0, buf.length);
-	}
-
-	cp.stdout.pipe(concat);
 	cp.stdin.end(fixture);
 });
 
-test('optimize a JPG', function (t) {
-	t.plan(2);
+test('optimize a JPG', t => {
+	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.jpg'));
+	var cp = spawn(cliPath);
 
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixtures/test.jpg'));
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'));
+	cp.stdout.pipe(concatStream(buf => {
+		t.ok(buf.length < fixture.length);
+		t.ok(buf.length > 0);
+		t.end();
+	}));
 
-	function end(buf) {
-		t.assert(buf.length < fixture.length, buf.length);
-		t.assert(buf.length > 0, buf.length);
-	}
-
-	cp.stdout.pipe(concat);
 	cp.stdin.end(fixture);
 });
 
-test('optimize a PNG', function (t) {
-	t.plan(2);
+test('optimize a PNG', t => {
+	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.png'));
+	var cp = spawn(cliPath);
 
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixtures/test.png'));
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'));
+	cp.stdout.pipe(concatStream(buf => {
+		t.ok(buf.length < fixture.length);
+		t.ok(buf.length > 0);
+		t.end();
+	}));
 
-	function end(buf) {
-		t.assert(buf.length < fixture.length, buf.length);
-		t.assert(buf.length > 0, buf.length);
-	}
-
-	cp.stdout.pipe(concat);
 	cp.stdin.end(fixture);
 });
 
-test('optimize a SVG', function (t) {
-	t.plan(2);
+test('optimize a SVG', t => {
+	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.svg'));
+	var cp = spawn(cliPath);
 
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixtures/test.svg'));
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'));
+	cp.stdout.pipe(concatStream(buf => {
+		t.ok(buf.length < fixture.length);
+		t.ok(buf.length > 0);
+		t.end();
+	}));
 
-	function end(buf) {
-		t.assert(buf.length < fixture.length, buf.length);
-		t.assert(buf.length > 0, buf.length);
-	}
-
-	cp.stdout.pipe(concat);
 	cp.stdin.end(fixture);
 });
 
-test('output error on corrupt images', function (t) {
-	t.plan(1);
-
-	var read = fs.createReadStream(path.join(__dirname, 'fixtures/test-corrupt.jpg'));
-	var concat = concatStream(end);
-	var cp = spawn(path.join(__dirname, '../cli.js'));
-
-	function end(str) {
-		t.assert(/Corrupt JPEG data/.test(str), str);
-	}
+test('output error on corrupt images', t => {
+	var read = fs.createReadStream(path.join(__dirname, 'fixture', 'test-corrupt.jpg'));
+	var cp = spawn(cliPath);
 
 	cp.stderr.setEncoding('utf8');
-	cp.stderr.pipe(concat);
+
+	cp.stderr.pipe(concatStream(str => {
+		t.assert(/Corrupt JPEG data/.test(str), str);
+		t.end();
+	}));
+
 	read.pipe(cp.stdin);
 });
