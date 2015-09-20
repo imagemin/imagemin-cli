@@ -2,38 +2,39 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var arrify = require('arrify');
 var meow = require('meow');
 var getStdin = require('get-stdin');
-var pathExists = require('path-exists');
 var Imagemin = require('imagemin');
 
 var cli = meow({
 	help: [
-		'Usage',
-		'  $ imagemin <file> <directory>',
-		'  $ imagemin <directory> <output>',
-		'  $ imagemin <file> > <output>',
-		'  $ cat <file> | imagemin > <output>',
-		'  $ imagemin [--plugin <plugin-name>...] ...',
+		'Usage: imagemin [OPTION]... <in-file> <out-file>',
+		'  or   imagemin [OPTION]... <in-file> > <output>',
+		'  or   imagemin [OPTION]... [-o output-directory] <in-file>...',
+		'  or   imagemin [OPTION]... < <input> > <output>',
 		'',
-		'Example',
-		'  $ imagemin images/* build',
-		'  $ imagemin images build',
-		'  $ imagemin foo.png > foo-optimized.png',
-		'  $ cat foo.png | imagemin > foo-optimized.png',
-		'  $ imagemin -P pngquant foo.png > foo-optimized.png',
+		'Examples',
+		'  imagemin in.png out.png',
+		'  imagemin images/* build',
+		'  imagemin images build',
+		'  imagemin foo.png > foo-optimized.png',
+		'  imagemin < foo.png > foo-optimized.png',
+		'  imagemin -P pngquant foo.png > foo-optimized.png',
 		'',
 		'Options',
-		'  -P, --plugin                        Override the default plugins',
-		'  -i, --interlaced                    Interlace gif for progressive rendering',
-		'  -o, --optimizationLevel <number>    Optimization level between 0 and 7',
-		'  -p, --progressive                   Lossless conversion to progressive'
+		'  -p, --plugin                        override the default plugins',
+		'  -o, --output                        specify the output directory',
+		'      --interlaced                    interlace gif for progressive rendering',
+		'      --optimization-level <number>   optimization level between 0 and 7',
+		'      --progressive                   lossless conversion to progressive',
+		'  -v, --verbose                       logs each file as it gets minified',
+		'  -h, --help                          show this help'
 	]
 }, {
 	boolean: [
 		'interlaced',
-		'progressive'
+		'progressive',
+		'verbose'
 	],
 	string: [
 		'plugin',
@@ -41,29 +42,26 @@ var cli = meow({
 		'install'
 	],
 	alias: {
-		P: 'plugin',
-		i: 'interlaced',
-		o: 'optimizationLevel',
-		p: 'progressive'
+		p: 'plugin',
+		o: 'output',
+		v: 'verbose'
 	}
 });
 
-function isFile(path) {
-	if (/^[^\s]+\.\w*$/.test(path)) {
-		return true;
-	}
-
-	try {
-		return fs.statSync(path).isFile();
-	} catch (err) {
-		return false;
-	}
+function exitWithMessage(message) {
+	console.error(Array.isArray(message) ? message.join('\n') : message);
+	process.exit(1);
 }
 
 var DEFAULT_PLUGINS = ['gifsicle', 'jpegtran', 'optipng', 'svgo'];
+var cwd = process.cwd();
 
-function run(src, dest) {
-	var plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
+function run(src, dest, destName) {
+	var plugins = cli.flags.plugin || DEFAULT_PLUGINS;
+	if (!Array.isArray(plugins)) {
+		plugins = [plugins];
+	}
+
 	var imagemin = new Imagemin().src(src);
 
 	plugins.forEach(function (name) {
@@ -78,17 +76,24 @@ function run(src, dest) {
 				plugin = Imagemin.svgo();
 				break;
 			default:
+				// workaround pngquant bug
+				var opts = {};
+				for (var key in cli.flags) {
+					if (name !== 'pngquant' && key !== 'verbose') {
+						opts[key] = cli.flags[key];
+					}
+				}
+
 				try {
-					plugin = require('imagemin-' + name)(cli.flags);
+					plugin = require('imagemin-' + name)(opts);
 				} catch (err) {
-					console.error([
+					exitWithMessage([
 						'Unknown plugin ' + name,
 						'',
 						'Maybe you forgot to install the plugin?',
 						'You can install it with:',
-						'  $ npm install -g imagemin-' + name
-					].join('\n'));
-					process.exit(1);
+						'  npm install -g imagemin-' + name
+					]);
 				}
 				break;
 		}
@@ -96,55 +101,127 @@ function run(src, dest) {
 		imagemin.use(plugin);
 	});
 
-	if (process.stdout.isTTY) {
-		imagemin.dest(dest ? dest : 'build');
+	var isBuffer = src instanceof Buffer;
+	var useStdout = !process.stdout.isTTY
+			// dest was not provided?
+			&& !dest
+			// src is a buffer or single file?
+			&& (isBuffer || src.length === 1);
+
+	if (!useStdout) {
+		if (!dest) {
+			exitWithMessage([
+					'Please specify an output location.',
+					'',
+					'Examples:',
+					'',
+					'  imagemin in.png out.png',
+					'  imagemin file1.png file2.png -o out'
+				]);
+		}
+
+		imagemin.dest(dest);
 	}
 
 	imagemin.run(function (err, files) {
 		if (err) {
-			console.error(err.message);
-			process.exit(1);
+			exitWithMessage(err.message);
 		}
 
-		if (!process.stdout.isTTY) {
+		if (useStdout) {
 			files.forEach(function (file) {
 				process.stdout.write(file.contents);
 			});
 		}
 	});
+
+	var streams = imagemin.streams;
+	var srcStream = streams[0];
+	var lastStream = streams[streams.length - 2];
+	var files = {};
+	var verbose = cli.flags.verbose;
+	srcStream.on('data', function (file) {
+		var originalPath = file.relative;
+		if (destName) {
+			file.path = path.join(path.dirname(file.path), destName);
+		}
+
+		if (verbose && file.contents) {
+			files[file.relative] = {
+				size: file.contents.length,
+				path: originalPath
+			};
+		}
+	});
+
+	if (cli.flags.verbose && srcStream !== lastStream) {
+		lastStream.on('data', function (file) {
+			if (file.contents) {
+				var relative = file.relative;
+				var savings = file.contents.length / files[relative].size;
+				var location = '';
+				if (dest) {
+					location = ' -> '
+						+ path.relative(cwd, path.join(dest, relative));
+				}
+
+				console.error(files[relative].path + location
+						+ ' (' + Math.round(savings * 100) + '% smaller)');
+			}
+		});
+	}
 }
 
 if (!cli.input.length && process.stdin.isTTY) {
-	console.error([
+	exitWithMessage([
 		'Provide at least one file to optimize',
 		'',
-		'Example',
-		'  imagemin images/* build',
+		'Examples:',
+		'  imagemin in.png out.png',
+		'  imagemin images/* -o build',
 		'  imagemin foo.png > foo-optimized.png',
 		'  cat foo.png | imagemin > foo-optimized.png'
-	].join('\n'));
-
-	process.exit(1);
+	]);
 }
 
 if (cli.input.length) {
-	var src = cli.input;
-	var dest;
-
-	if (src.length > 1 && !isFile(src[src.length - 1])) {
-		dest = src[src.length - 1];
-		src.pop();
+	var files = cli.input;
+	var src;
+	var dest = cli.flags.output;
+	var destName;
+	if (!dest && files.length == 2) {
+		src = [files[0]];
+		dest = cwd;
+		destName = files[1];
+	} else {
+		src = files;
 	}
 
 	src = src.map(function (s) {
-		if (!isFile(s) && pathExists.sync(s)) {
-			return path.join(s, '**/*');
-		}
+			try {
+				if (!fs.statSync(s).isFile()) {
+					return path.join(s, '**/*');
+				}
+			} catch (e) {
+				if (e.code == 'ENOENT') {
+					console.error(s, 'does not exist');
+				} else {
+					console.error(e);
+				}
+				return undefined;
+			}
 
-		return s;
-	});
+			return s;
+		})
+		.filter(function (filename) { return filename; });
 
-	run(src, dest);
+	if (!src.length) {
+		exitWithMessage([
+			'Provide at least one input file'
+		]);
+	}
+
+	run(src, dest, destName);
 } else {
 	getStdin.buffer(run);
 }
