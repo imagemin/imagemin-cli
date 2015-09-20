@@ -146,5 +146,8 @@ if (cli.input.length) {
 
 	run(src, dest);
 } else {
-	getStdin.buffer(run);
+	getStdin.buffer().then(run).catch(function (err) {
+		console.error(err);
+		process.exit(1);
+	});
 }
