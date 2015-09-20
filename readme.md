@@ -2,7 +2,7 @@
 
 > Minify images
 
-*Issues with the output should be reported on the imagemin [issue tracker](https://github.com/imagemin/imagemin/issues).*
+*Issues with the output should be reported on the `imagemin` [issue tracker](https://github.com/imagemin/imagemin/issues).*
 
 
 ## Install
@@ -22,17 +22,20 @@ $ imagemin --help
     $ imagemin <directory> <output>
     $ imagemin <file> > <output>
     $ cat <file> | imagemin > <output>
+    $ imagemin [--plugin <plugin-name>...] ...
 
-  Example
+  Examples
     $ imagemin images/* build
     $ imagemin images build
     $ imagemin foo.png > foo-optimized.png
     $ cat foo.png | imagemin > foo-optimized.png
+    $ imagemin -P pngquant foo.png > foo-optimized.png
 
   Options
-    -i, --interlaced                    Interlace gif for progressive rendering
-    -o, --optimizationLevel <number>    Optimization level between 0 and 7
-    -p, --progressive                   Lossless conversion to progressive
+    -P, --plugin                      Override the default plugins
+    -i, --interlaced                  Interlace gif for progressive rendering
+    -o, --optimizationLevel <number>  Optimization level between 0 and 7
+    -p, --progressive                 Lossless conversion to progressive
 ```
 
 

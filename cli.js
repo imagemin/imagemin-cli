@@ -17,7 +17,7 @@ var cli = meow({
 		'  $ cat <file> | imagemin > <output>',
 		'  $ imagemin [--plugin <plugin-name>...] ...',
 		'',
-		'Example',
+		'Examples',
 		'  $ imagemin images/* build',
 		'  $ imagemin images build',
 		'  $ imagemin foo.png > foo-optimized.png',
@@ -25,10 +25,10 @@ var cli = meow({
 		'  $ imagemin -P pngquant foo.png > foo-optimized.png',
 		'',
 		'Options',
-		'  -P, --plugin                        Override the default plugins',
-		'  -i, --interlaced                    Interlace gif for progressive rendering',
-		'  -o, --optimizationLevel <number>    Optimization level between 0 and 7',
-		'  -p, --progressive                   Lossless conversion to progressive'
+		'  -P, --plugin                      Override the default plugins',
+		'  -i, --interlaced                  Interlace gif for progressive rendering',
+		'  -o, --optimizationLevel <number>  Optimization level between 0 and 7',
+		'  -p, --progressive                 Lossless conversion to progressive'
 	]
 }, {
 	boolean: [
