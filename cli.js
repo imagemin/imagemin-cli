@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var arrify = require('arrify');
-var meow = require('meow');
-var getStdin = require('get-stdin');
-var pathExists = require('path-exists');
-var Imagemin = require('imagemin');
+const fs = require('fs');
+const path = require('path');
+const arrify = require('arrify');
+const meow = require('meow');
+const getStdin = require('get-stdin');
+const pathExists = require('path-exists');
+const Imagemin = require('imagemin');
 
-var cli = meow({
+const cli = meow({
 	help: [
 		'Usage',
 		'  $ imagemin <file> <directory>',
@@ -60,14 +60,20 @@ function isFile(path) {
 	}
 }
 
-var DEFAULT_PLUGINS = ['gifsicle', 'jpegtran', 'optipng', 'svgo'];
+const DEFAULT_PLUGINS = [
+	'gifsicle',
+	'jpegtran',
+	'optipng',
+	'svgo'
+];
 
 function run(src, dest) {
-	var plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
-	var imagemin = new Imagemin().src(src);
+	const plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
+	const imagemin = new Imagemin().src(src);
 
-	plugins.forEach(function (name) {
-		var plugin;
+	plugins.forEach(name => {
+		let plugin;
+
 		switch (name) {
 			case 'gifsicle':
 			case 'jpegtran':
@@ -100,16 +106,14 @@ function run(src, dest) {
 		imagemin.dest(dest ? dest : 'build');
 	}
 
-	imagemin.run(function (err, files) {
+	imagemin.run((err, files) => {
 		if (err) {
 			console.error(err.message);
 			process.exit(1);
 		}
 
 		if (!process.stdout.isTTY) {
-			files.forEach(function (file) {
-				process.stdout.write(file.contents);
-			});
+			files.forEach(file => process.stdout.write(file.contents));
 		}
 	});
 }
@@ -128,15 +132,15 @@ if (!cli.input.length && process.stdin.isTTY) {
 }
 
 if (cli.input.length) {
-	var src = cli.input;
-	var dest;
+	let src = cli.input;
+	let dest;
 
 	if (src.length > 1 && !isFile(src[src.length - 1])) {
 		dest = src[src.length - 1];
 		src.pop();
 	}
 
-	src = src.map(function (s) {
+	src = src.map(s => {
 		if (!isFile(s) && pathExists.sync(s)) {
 			return path.join(s, '**/*');
 		}
@@ -146,7 +150,7 @@ if (cli.input.length) {
 
 	run(src, dest);
 } else {
-	getStdin.buffer().then(run).catch(function (err) {
+	getStdin.buffer().then(run).catch(err => {
 		console.error(err);
 		process.exit(1);
 	});

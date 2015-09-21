@@ -7,7 +7,7 @@ import test from 'ava';
 const cliPath = path.join(__dirname, '../cli.js');
 
 test('show help screen', t => {
-	var cp = spawn(cliPath, ['--help']);
+	const cp = spawn(cliPath, ['--help']);
 
 	cp.stdout.setEncoding('utf8');
 	cp.stdout.pipe(concatStream(str => {
@@ -17,8 +17,8 @@ test('show help screen', t => {
 });
 
 test('show version', t => {
-	var cp = spawn(cliPath, ['--version']);
-	var version = require('../package.json').version;
+	const cp = spawn(cliPath, ['--version']);
+	const version = require('../package.json').version;
 
 	cp.stdout.setEncoding('utf8');
 	cp.stdout.pipe(concatStream(str => {
@@ -28,8 +28,8 @@ test('show version', t => {
 });
 
 test('optimize a GIF', t => {
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.gif'));
-	var cp = spawn(cliPath);
+	const fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.gif'));
+	const cp = spawn(cliPath);
 
 	cp.stdout.pipe(concatStream(buf => {
 		t.ok(buf.length < fixture.length);
@@ -41,8 +41,8 @@ test('optimize a GIF', t => {
 });
 
 test('optimize a JPG', t => {
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.jpg'));
-	var cp = spawn(cliPath);
+	const fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.jpg'));
+	const cp = spawn(cliPath);
 
 	cp.stdout.pipe(concatStream(buf => {
 		t.ok(buf.length < fixture.length);
@@ -54,8 +54,8 @@ test('optimize a JPG', t => {
 });
 
 test('optimize a PNG', t => {
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.png'));
-	var cp = spawn(cliPath);
+	const fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.png'));
+	const cp = spawn(cliPath);
 
 	cp.stdout.pipe(concatStream(buf => {
 		t.ok(buf.length < fixture.length);
@@ -67,8 +67,8 @@ test('optimize a PNG', t => {
 });
 
 test('optimize a SVG', t => {
-	var fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.svg'));
-	var cp = spawn(cliPath);
+	const fixture = fs.readFileSync(path.join(__dirname, 'fixture', 'test.svg'));
+	const cp = spawn(cliPath);
 
 	cp.stdout.pipe(concatStream(buf => {
 		t.ok(buf.length < fixture.length);
@@ -80,8 +80,8 @@ test('optimize a SVG', t => {
 });
 
 test('output error on corrupt images', t => {
-	var read = fs.createReadStream(path.join(__dirname, 'fixture', 'test-corrupt.jpg'));
-	var cp = spawn(cliPath);
+	const read = fs.createReadStream(path.join(__dirname, 'fixture', 'test-corrupt.jpg'));
+	const cp = spawn(cliPath);
 
 	cp.stderr.setEncoding('utf8');
 

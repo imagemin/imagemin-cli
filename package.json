@@ -13,7 +13,7 @@
     "imagemin": "cli.js"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
     "test": "ava"
