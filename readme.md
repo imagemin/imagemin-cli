@@ -1,4 +1,4 @@
-# imagemin-cli [![Build Status](https://img.shields.io/travis/imagemin-cli/imagemin-cli.svg)](https://travis-ci.org/imagemin-cli/imagemin-cli)
+# imagemin-cli [![Build Status](https://travis-ci.org/imagemin/imagemin-cli.svg?branch=master)](https://travis-ci.org/imagemin/imagemin-cli)
 
 > Minify images
 
