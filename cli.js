@@ -102,8 +102,8 @@ function run(src, dest) {
 		imagemin.use(plugin);
 	});
 
-	if (process.stdout.isTTY) {
-		imagemin.dest(dest ? dest : 'build');
+	if (dest) {
+		imagemin.dest(dest);
 	}
 
 	imagemin.run((err, files) => {
@@ -112,7 +112,7 @@ function run(src, dest) {
 			process.exit(1);
 		}
 
-		if (!process.stdout.isTTY) {
+		if (!dest) {
 			files.forEach(file => process.stdout.write(file.contents));
 		}
 	});
