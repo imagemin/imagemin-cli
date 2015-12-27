@@ -25,22 +25,24 @@
     "cli",
     "cli-app",
     "compress",
+    "imagemin",
     "gif",
     "image",
     "jpeg",
+    "jpg",
     "minify",
     "png",
     "svg"
   ],
   "dependencies": {
-    "arrify": "^1.0.0",
-    "get-stdin": "^5.0.0",
-    "imagemin": "^3.2.0",
-    "meow": "^3.3.0",
-    "path-exists": "^2.0.0"
+    "arrify": "^1.0.1",
+    "get-stdin": "^5.0.1",
+    "imagemin": "^4.0.0",
+    "meow": "^3.6.0",
+    "path-exists": "^2.1.0"
   },
   "devDependencies": {
     "ava": "*",
-    "concat-stream": "^1.5.0"
+    "concat-stream": "^1.5.1"
   }
 }
