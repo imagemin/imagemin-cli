@@ -8,29 +8,27 @@ const getStdin = require('get-stdin');
 const pathExists = require('path-exists');
 const Imagemin = require('imagemin');
 
-const cli = meow({
-	help: [
-		'Usage',
-		'  $ imagemin <file> <directory>',
-		'  $ imagemin <directory> <output>',
-		'  $ imagemin <file> > <output>',
-		'  $ cat <file> | imagemin > <output>',
-		'  $ imagemin [--plugin <plugin-name>...] ...',
-		'',
-		'Examples',
-		'  $ imagemin images/* build',
-		'  $ imagemin images build',
-		'  $ imagemin foo.png > foo-optimized.png',
-		'  $ cat foo.png | imagemin > foo-optimized.png',
-		'  $ imagemin -P pngquant foo.png > foo-optimized.png',
-		'',
-		'Options',
-		'  -P, --plugin                      Override the default plugins',
-		'  -i, --interlaced                  Interlace gif for progressive rendering',
-		'  -o, --optimizationLevel <number>  Optimization level between 0 and 7',
-		'  -p, --progressive                 Lossless conversion to progressive'
-	]
-}, {
+const cli = meow(`
+	Usage
+	  $ imagemin <file> <directory>
+	  $ imagemin <directory> <output>
+	  $ imagemin <file> > <output>
+	  $ cat <file> | imagemin > <output>
+	  $ imagemin [--plugin <plugin-name>...] ...
+
+	Options
+	  -P, --plugin                      Override the default plugins
+	  -i, --interlaced                  Interlace gif for progressive rendering
+	  -o, --optimizationLevel <number>  Optimization level between 0 and 7
+	  -p, --progressive                 Lossless conversion to progressive
+
+	Examples
+	  $ imagemin images/* build
+	  $ imagemin images build
+	  $ imagemin foo.png > foo-optimized.png
+	  $ cat foo.png | imagemin > foo-optimized.png
+	  $ imagemin -P pngquant foo.png > foo-optimized.png
+`, {
 	boolean: [
 		'interlaced',
 		'progressive'
@@ -150,8 +148,5 @@ if (cli.input.length) {
 
 	run(src, dest);
 } else {
-	getStdin.buffer().then(run).catch(err => {
-		console.error(err);
-		process.exit(1);
-	});
+	getStdin.buffer().then(run);
 }

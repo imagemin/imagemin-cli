@@ -16,7 +16,7 @@
     "node": ">=4"
   },
   "scripts": {
-    "test": "ava"
+    "test": "xo && ava"
   },
   "files": [
     "cli.js"
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "ava": "*",
-    "concat-stream": "^1.5.1"
+    "concat-stream": "^1.5.1",
+    "xo": "*"
   }
 }
