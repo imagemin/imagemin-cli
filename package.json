@@ -9,6 +9,17 @@
     "email": "kevinmartensson@gmail.com",
     "url": "github.com/kevva"
   },
+  "maintainers": [
+    {
+      "name": "Sindre Sorhus",
+      "email": "sindresorhus@gmail.com",
+      "url": "sindresorhus.com"
+    },
+    {
+      "name": "Shinnosuke Watanabe",
+      "url": "github.com/shinnn"
+    }
+  ],
   "bin": {
     "imagemin": "cli.js"
   },
