@@ -48,13 +48,19 @@
   "dependencies": {
     "arrify": "^1.0.1",
     "get-stdin": "^5.0.1",
-    "imagemin": "^4.0.0",
+    "imagemin": "^5.0.0",
     "meow": "^3.6.0",
-    "path-exists": "^2.1.0"
+    "strip-indent": "^2.0.0"
   },
   "devDependencies": {
     "ava": "*",
     "concat-stream": "^1.5.1",
     "xo": "*"
+  },
+  "optionalDependencies": {
+    "imagemin-gifsicle": "^5.0.0",
+    "imagemin-jpegtran": "^5.0.0",
+    "imagemin-optipng": "^5.0.0",
+    "imagemin-svgo": "^5.0.0"
   }
 }

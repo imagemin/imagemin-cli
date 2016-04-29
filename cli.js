@@ -1,30 +1,27 @@
 #!/usr/bin/env node
 'use strict';
-const fs = require('fs');
-const path = require('path');
 const arrify = require('arrify');
 const meow = require('meow');
 const getStdin = require('get-stdin');
-const pathExists = require('path-exists');
-const Imagemin = require('imagemin');
+const imagemin = require('imagemin');
+const stripIndent = require('strip-indent');
 
 const cli = meow(`
 	Usage
-	  $ imagemin <file> <directory>
-	  $ imagemin <directory> <output>
+	  $ imagemin <path|glob> ... --out-dir build
 	  $ imagemin <file> > <output>
 	  $ cat <file> | imagemin > <output>
 	  $ imagemin [--plugin <plugin-name>...] ...
 
 	Options
+	  -O, --optimizationLevel <number>  Optimization level between 0 and 7
 	  -P, --plugin                      Override the default plugins
 	  -i, --interlaced                  Interlace gif for progressive rendering
-	  -o, --optimizationLevel <number>  Optimization level between 0 and 7
+	  -o, --out-dir                     Output directory
 	  -p, --progressive                 Lossless conversion to progressive
 
 	Examples
-	  $ imagemin images/* build
-	  $ imagemin images build
+	  $ imagemin images/* --out-dir build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin -P pngquant foo.png > foo-optimized.png
@@ -36,27 +33,17 @@ const cli = meow(`
 	string: [
 		'plugin',
 		'optimizationLevel',
+		'out-dir',
 		'install'
 	],
 	alias: {
+		O: 'optimizationLevel',
 		P: 'plugin',
 		i: 'interlaced',
-		o: 'optimizationLevel',
+		o: 'out-dir',
 		p: 'progressive'
 	}
 });
-
-function isFile(path) {
-	if (/^[^\s]+\.\w*$/.test(path)) {
-		return true;
-	}
-
-	try {
-		return fs.statSync(path).isFile();
-	} catch (err) {
-		return false;
-	}
-}
 
 const DEFAULT_PLUGINS = [
 	'gifsicle',
@@ -65,88 +52,45 @@ const DEFAULT_PLUGINS = [
 	'svgo'
 ];
 
-function run(src, dest) {
-	const plugins = cli.flags.plugin ? arrify(cli.flags.plugin) : DEFAULT_PLUGINS;
-	const imagemin = new Imagemin().src(src);
+const requirePlugins = (plugins, opts) => plugins.map(x => {
+	try {
+		x = require(`imagemin-${x}`)(opts);
+	} catch (err) {
+		console.error(stripIndent(`
+			Unknown plugin: ${x}
 
-	plugins.forEach(name => {
-		let plugin;
+			Did you forgot to install the plugin?
+			You can install it with:
 
-		switch (name) {
-			case 'gifsicle':
-			case 'jpegtran':
-			case 'optipng':
-				plugin = Imagemin[name](cli.flags);
-				break;
-			case 'svgo':
-				plugin = Imagemin.svgo();
-				break;
-			default:
-				try {
-					plugin = require('imagemin-' + name)(cli.flags);
-				} catch (err) {
-					console.error([
-						'Unknown plugin ' + name,
-						'',
-						'Maybe you forgot to install the plugin?',
-						'You can install it with:',
-						'  $ npm install -g imagemin-' + name
-					].join('\n'));
-					process.exit(1);
-				}
-				break;
-		}
-
-		imagemin.use(plugin);
-	});
-
-	if (dest) {
-		imagemin.dest(dest);
+			  $ npm install -g imagemin-${x}
+		`).trim());
+		process.exit(1);
 	}
 
-	imagemin.run((err, files) => {
-		if (err) {
-			console.error(err.message);
-			process.exit(1);
-		}
+	return x;
+});
 
-		if (!dest) {
-			files.forEach(file => process.stdout.write(file.contents));
+const run = (input, opts) => {
+	const plugins = opts.plugin ? arrify(opts.plugin) : DEFAULT_PLUGINS;
+
+	if (Buffer.isBuffer(input)) {
+		return imagemin.buffer(input, {use: requirePlugins(plugins, opts)}).then(buf => process.stdout.write(buf));
+	}
+
+	imagemin(input, opts.outDir, {use: requirePlugins(plugins, opts)}).then(files => {
+		if (!opts.outDir) {
+			files.forEach(x => process.stdout.write(x.data));
 		}
 	});
-}
+};
 
 if (!cli.input.length && process.stdin.isTTY) {
-	console.error([
-		'Provide at least one file to optimize',
-		'',
-		'Example',
-		'  imagemin images/* build',
-		'  imagemin foo.png > foo-optimized.png',
-		'  cat foo.png | imagemin > foo-optimized.png'
-	].join('\n'));
-
+	console.error('Specify at least one filename');
 	process.exit(1);
 }
 
 if (cli.input.length) {
-	let src = cli.input;
-	let dest;
-
-	if (src.length > 1 && !isFile(src[src.length - 1])) {
-		dest = src[src.length - 1];
-		src.pop();
-	}
-
-	src = src.map(s => {
-		if (!isFile(s) && pathExists.sync(s)) {
-			return path.join(s, '**/*');
-		}
-
-		return s;
-	});
-
-	run(src, dest);
+	run(cli.input, cli.flags);
 } else {
-	getStdin.buffer().then(run);
+	getStdin.buffer().then(buf => run(buf, cli.flags));
 }
