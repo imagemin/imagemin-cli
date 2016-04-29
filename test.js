@@ -7,11 +7,11 @@ import test from 'ava';
 const fsP = pify(fs);
 
 test('show help screen', async t => {
-	t.regex(await execa.stdout('cli.js', ['--help']), /Minify images/);
+	t.regex(await execa.stdout('./cli.js', ['--help']), /Minify images/);
 });
 
 test('show version', async t => {
-	t.is(await execa.stdout('cli.js', ['--version']), require('./package.json').version);
+	t.is(await execa.stdout('./cli.js', ['--version']), require('./package.json').version);
 });
 
 test('optimize a GIF', async t => {
@@ -35,5 +35,5 @@ test('optimize a SVG', async t => {
 });
 
 test('output error on corrupt images', async t => {
-	t.throws(execa('cli.js', [path.join(__dirname, 'fixtures', 'test-corrupt.jpg')]));
+	t.throws(execa('./cli.js', [path.join(__dirname, 'fixtures', 'test-corrupt.jpg')]));
 });
