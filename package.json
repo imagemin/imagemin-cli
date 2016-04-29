@@ -54,7 +54,8 @@
   },
   "devDependencies": {
     "ava": "*",
-    "concat-stream": "^1.5.1",
+    "execa": "^0.4.0",
+    "pify": "^2.3.0",
     "xo": "*"
   },
   "optionalDependencies": {
