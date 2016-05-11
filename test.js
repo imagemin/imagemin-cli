@@ -1,8 +1,9 @@
 import fs from 'fs';
-import path from 'path';
 import execa from 'execa';
 import pify from 'pify';
 import test from 'ava';
+
+process.chdir(__dirname);
 
 const fsP = pify(fs);
 
@@ -15,33 +16,32 @@ test('show version', async t => {
 });
 
 test('optimize a GIF', async t => {
-	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.gif'));
+	const buf = await fsP.readFile('fixtures/test.gif');
 	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
 });
 
 test('optimize a JPG', async t => {
-	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.jpg'));
+	const buf = await fsP.readFile('fixtures/test.jpg');
 	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
 });
 
 test('optimize a PNG', async t => {
-	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.png'));
+	const buf = await fsP.readFile('fixtures/test.png');
 	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
 });
 
 test('optimize a SVG', async t => {
-	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.svg'));
+	const buf = await fsP.readFile('fixtures/test.svg');
 	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
 });
 
 test('output error on corrupt images', async t => {
-	t.throws(execa('./cli.js', [path.join(__dirname, 'fixtures', 'test-corrupt.jpg')]));
+	t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
 });
 
 test('support plugins', async t => {
-	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.png'));
-	const data = await execa.stdout('./cli.js', ['--plugin', 'pngquant'], {input: buf});
+	const buf = await fsP.readFile('fixtures/test.png');
+	const data = await execa.stdout('./cli.js', ['--plugin=pngquant'], {input: buf});
 	const compareData = await execa.stdout('./cli.js', {input: buf});
-
 	t.true(data.length < compareData.length);
 });

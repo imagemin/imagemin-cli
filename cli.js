@@ -8,20 +8,19 @@ const stripIndent = require('strip-indent');
 
 const cli = meow(`
 	Usage
-	  $ imagemin <path|glob> ... --out-dir build
+	  $ imagemin <path|glob> ... --out-dir=build [--plugin=<name> ...]
 	  $ imagemin <file> > <output>
 	  $ cat <file> | imagemin > <output>
-	  $ imagemin [--plugin <plugin-name>...] ...
 
 	Options
 	  -p, --plugin   Override the default plugins
 	  -o, --out-dir  Output directory
 
 	Examples
-	  $ imagemin images/* --out-dir build
+	  $ imagemin images/* --out-dir=build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
-	  $ imagemin --plugin pngquant foo.png > foo-optimized.png
+	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
 `, {
 	string: [
 		'plugin',
@@ -59,13 +58,16 @@ const requirePlugins = plugins => plugins.map(x => {
 });
 
 const run = (input, opts) => {
-	const plugins = opts.plugin ? arrify(opts.plugin) : DEFAULT_PLUGINS;
+	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
+
+	const use = requirePlugins(arrify(opts.plugin));
 
 	if (Buffer.isBuffer(input)) {
-		return imagemin.buffer(input, {use: requirePlugins(plugins)}).then(buf => process.stdout.write(buf));
+		imagemin.buffer(input, {use}).then(buf => process.stdout.write(buf));
+		return;
 	}
 
-	imagemin(input, opts.outDir, {use: requirePlugins(plugins)}).then(files => {
+	imagemin(input, opts.outDir, {use}).then(files => {
 		if (!opts.outDir) {
 			files.forEach(x => process.stdout.write(x.data));
 		}
