@@ -14,34 +14,22 @@ const cli = meow(`
 	  $ imagemin [--plugin <plugin-name>...] ...
 
 	Options
-	  -O, --optimizationLevel <number>  Optimization level between 0 and 7
-	  -P, --plugin                      Override the default plugins
-	  -i, --interlaced                  Interlace gif for progressive rendering
-	  -o, --out-dir                     Output directory
-	  -p, --progressive                 Lossless conversion to progressive
+	  -p, --plugin   Override the default plugins
+	  -o, --out-dir  Output directory
 
 	Examples
 	  $ imagemin images/* --out-dir build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
-	  $ imagemin -P pngquant foo.png > foo-optimized.png
+	  $ imagemin --plugin pngquant foo.png > foo-optimized.png
 `, {
-	boolean: [
-		'interlaced',
-		'progressive'
-	],
 	string: [
 		'plugin',
-		'optimizationLevel',
-		'out-dir',
-		'install'
+		'out-dir'
 	],
 	alias: {
-		O: 'optimizationLevel',
-		P: 'plugin',
-		i: 'interlaced',
-		o: 'out-dir',
-		p: 'progressive'
+		p: 'plugin',
+		o: 'out-dir'
 	}
 });
 
@@ -52,9 +40,9 @@ const DEFAULT_PLUGINS = [
 	'svgo'
 ];
 
-const requirePlugins = (plugins, opts) => plugins.map(x => {
+const requirePlugins = plugins => plugins.map(x => {
 	try {
-		x = require(`imagemin-${x}`)(opts);
+		x = require(`imagemin-${x}`)();
 	} catch (err) {
 		console.error(stripIndent(`
 			Unknown plugin: ${x}
@@ -74,10 +62,10 @@ const run = (input, opts) => {
 	const plugins = opts.plugin ? arrify(opts.plugin) : DEFAULT_PLUGINS;
 
 	if (Buffer.isBuffer(input)) {
-		return imagemin.buffer(input, {use: requirePlugins(plugins, opts)}).then(buf => process.stdout.write(buf));
+		return imagemin.buffer(input, {use: requirePlugins(plugins)}).then(buf => process.stdout.write(buf));
 	}
 
-	imagemin(input, opts.outDir, {use: requirePlugins(plugins, opts)}).then(files => {
+	imagemin(input, opts.outDir, {use: requirePlugins(plugins)}).then(files => {
 		if (!opts.outDir) {
 			files.forEach(x => process.stdout.write(x.data));
 		}

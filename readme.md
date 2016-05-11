@@ -24,17 +24,14 @@ $ imagemin --help
     $ imagemin [--plugin <plugin-name>...] ...
 
   Options
-    -O, --optimizationLevel <number>  Optimization level between 0 and 7
-    -P, --plugin                      Override the default plugins
-    -i, --interlaced                  Interlace gif for progressive rendering
-    -o, --out-dir                     Output directory
-    -p, --progressive                 Lossless conversion to progressive
+    -p, --plugin   Override the default plugins
+    -o, --out-dir  Output directory
 
   Examples
     $ imagemin images/* --out-dir build
     $ imagemin foo.png > foo-optimized.png
     $ cat foo.png | imagemin > foo-optimized.png
-    $ imagemin -P pngquant foo.png > foo-optimized.png
+    $ imagemin --plugin pngquant foo.png > foo-optimized.png
 ```
 
 
