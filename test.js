@@ -37,3 +37,11 @@ test('optimize a SVG', async t => {
 test('output error on corrupt images', async t => {
 	t.throws(execa('./cli.js', [path.join(__dirname, 'fixtures', 'test-corrupt.jpg')]));
 });
+
+test('support plugins', async t => {
+	const buf = await fsP.readFile(path.join(__dirname, 'fixtures', 'test.png'));
+	const data = await execa.stdout('./cli.js', ['--plugin', 'pngquant'], {input: buf});
+	const compareData = await execa.stdout('./cli.js', {input: buf});
+
+	t.true(data.length < compareData.length);
+});

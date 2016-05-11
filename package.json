@@ -55,6 +55,7 @@
   "devDependencies": {
     "ava": "*",
     "execa": "^0.4.0",
+    "imagemin-pngquant": "^5.0.0",
     "pify": "^2.3.0",
     "xo": "*"
   },
