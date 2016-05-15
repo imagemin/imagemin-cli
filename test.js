@@ -50,3 +50,9 @@ test('error when trying to write multiple files to stdout', async t => {
 	const err = await t.throws(execa('./cli.js', ['fixtures/test.{jpg,png}']));
 	t.is(err.stderr.trim(), 'Cannot write multiple files to stdout, specify a `--out-dir`');
 });
+
+test('throw on missing plugins', async t => {
+	const buf = await fsP.readFile('fixtures/test.png');
+	const err = await t.throws(execa('./cli.js', ['--plugin=unicorn'], {input: buf}));
+	t.regex(err.stderr, /Unknown plugin: unicorn/);
+});
