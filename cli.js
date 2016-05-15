@@ -76,8 +76,13 @@ const run = (input, opts) => {
 
 	imagemin(input, opts.outDir, {use})
 		.then(files => {
+			if (!opts.outDir && files.length > 1) {
+				console.error('Cannot write multiple files to stdout, specify a `--out-dir`');
+				process.exit(1);
+			}
+
 			if (!opts.outDir) {
-				files.forEach(x => process.stdout.write(x.data));
+				process.stdout.write(files[0].data);
 				return;
 			}
 

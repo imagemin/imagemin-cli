@@ -45,3 +45,8 @@ test('support plugins', async t => {
 	const compareData = await execa.stdout('./cli.js', {input: buf});
 	t.true(data.length < compareData.length);
 });
+
+test('error when trying to write multiple files to stdout', async t => {
+	const err = await t.throws(execa('./cli.js', ['fixtures/test.{jpg,png}']));
+	t.is(err.stderr.trim(), 'Cannot write multiple files to stdout, specify a `--out-dir`');
+});
