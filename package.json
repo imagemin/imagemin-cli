@@ -50,6 +50,8 @@
     "get-stdin": "^5.0.1",
     "imagemin": "^5.0.0",
     "meow": "^3.6.0",
+    "ora": "^0.2.1",
+    "plur": "^2.1.2",
     "strip-indent": "^2.0.0"
   },
   "devDependencies": {

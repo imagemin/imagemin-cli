@@ -4,6 +4,8 @@ const arrify = require('arrify');
 const meow = require('meow');
 const getStdin = require('get-stdin');
 const imagemin = require('imagemin');
+const ora = require('ora');
+const plur = require('plur');
 const stripIndent = require('strip-indent');
 
 const cli = meow(`
@@ -61,17 +63,32 @@ const run = (input, opts) => {
 	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
 
 	const use = requirePlugins(arrify(opts.plugin));
+	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
 		imagemin.buffer(input, {use}).then(buf => process.stdout.write(buf));
 		return;
 	}
 
-	imagemin(input, opts.outDir, {use}).then(files => {
-		if (!opts.outDir) {
-			files.forEach(x => process.stdout.write(x.data));
-		}
-	});
+	if (opts.outDir) {
+		spinner.start();
+	}
+
+	imagemin(input, opts.outDir, {use})
+		.then(files => {
+			if (!opts.outDir) {
+				files.forEach(x => process.stdout.write(x.data));
+				return;
+			}
+
+			spinner.stop();
+
+			console.log(`${files.length} ${plur('image', files.length)} minified`);
+		})
+		.catch(err => {
+			spinner.stop();
+			throw err;
+		});
 };
 
 if (!cli.input.length && process.stdin.isTTY) {
