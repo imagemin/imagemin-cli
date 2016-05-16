@@ -43,7 +43,7 @@ const DEFAULT_PLUGINS = [
 
 const requirePlugins = plugins => plugins.map(x => {
 	try {
-		x = require(`imagemin-${x}`)();
+		return require(`imagemin-${x}`)();
 	} catch (err) {
 		console.error(stripIndent(`
 			Unknown plugin: ${x}
@@ -55,8 +55,6 @@ const requirePlugins = plugins => plugins.map(x => {
 		`).trim());
 		process.exit(1);
 	}
-
-	return x;
 });
 
 const run = (input, opts) => {
