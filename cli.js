@@ -76,6 +76,10 @@ const run = (input, opts) => {
 
 	imagemin(input, opts.outDir, {use})
 		.then(files => {
+			if (!opts.outDir && files.length === 0) {
+				return;
+			}
+
 			if (!opts.outDir && files.length > 1) {
 				console.error('Cannot write multiple files to stdout, specify a `--out-dir`');
 				process.exit(1);
