@@ -1,6 +1,6 @@
 {
   "name": "imagemin-cli",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Minify images",
   "license": "MIT",
   "repository": "imagemin/imagemin-cli",
