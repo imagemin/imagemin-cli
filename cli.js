@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const arrify = require('arrify');
 const meow = require('meow');
 const getStdin = require('get-stdin');
@@ -15,22 +17,26 @@ const cli = meow(`
 	  $ cat <file> | imagemin > <output>
 
 	Options
-	  -p, --plugin   Override the default plugins
-	  -o, --out-dir  Output directory
+	  -p, --plugin     Override the default plugins
+	  -o, --out-dir    Output directory
+	  -R, --recursive  Run the command recursively
 
 	Examples
 	  $ imagemin images/* --out-dir=build
+	  $ imagemin images --recursive --out-dir=build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
 `, {
 	string: [
 		'plugin',
-		'out-dir'
+		'out-dir',
+		'recursive'
 	],
 	alias: {
 		p: 'plugin',
-		o: 'out-dir'
+		o: 'out-dir',
+		R: 'recursive'
 	}
 });
 
@@ -57,7 +63,23 @@ const requirePlugins = plugins => plugins.map(x => {
 	}
 });
 
+const isDir = path => fs.lstatSync(path).isDirectory();
+
 const run = (input, opts) => {
+	if (typeof opts.recursive !== 'undefined') {
+		const filtered = input.filter(input => isDir(input));
+		filtered.forEach(dir => {
+			// recursively run for each directory found
+			const children = fs.readdirSync(dir).map(f => path.join(dir, f));
+			run(children, Object.assign({}, opts, {outDir: path.join(opts.outDir, dir)}));
+		});
+
+		if (filtered.length === input.length) {
+			// all inputs were folders
+			return;
+		}
+	}
+
 	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
 
 	const use = requirePlugins(arrify(opts.plugin));
