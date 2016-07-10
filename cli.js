@@ -19,7 +19,7 @@ const cli = meow(`
 	Options
 	  -p, --plugin     Override the default plugins
 	  -o, --out-dir    Output directory
-	  -R, --recursive  Run the command recursively
+	  -r, --recursive  Run the command recursively
 
 	Examples
 	  $ imagemin images/* --out-dir=build
@@ -30,13 +30,12 @@ const cli = meow(`
 `, {
 	string: [
 		'plugin',
-		'out-dir',
-		'recursive'
+		'out-dir'
 	],
 	alias: {
 		p: 'plugin',
 		o: 'out-dir',
-		R: 'recursive'
+		r: 'recursive'
 	}
 });
 
