@@ -65,12 +65,12 @@ const requirePlugins = plugins => plugins.map(x => {
 const isDir = path => fs.lstatSync(path).isDirectory();
 
 const run = (input, opts) => {
-	if (typeof opts.recursive !== 'undefined') {
+	if (opts.recursive) {
 		const filtered = input.filter(input => isDir(input));
 		filtered.forEach(dir => {
 			// recursively run for each directory found
 			const children = fs.readdirSync(dir).map(f => path.join(dir, f));
-			run(children, Object.assign({}, opts, {outDir: path.join(opts.outDir, dir)}));
+			run(children, Object.assign({outDir: path.join(opts.outDir, dir)}, opts));
 		});
 
 		if (filtered.length === input.length) {
