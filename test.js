@@ -16,23 +16,39 @@ test('show version', async t => {
 });
 
 test('optimize a GIF', async t => {
-	const buf = await fsP.readFile('fixtures/test.gif');
-	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
+	const input = await fsP.readFile('fixtures/test.gif');
+
+	t.true((await execa.stdout('./cli.js', {
+		input,
+		encoding: 'buffer'
+	})).length < input.length);
 });
 
 test('optimize a JPG', async t => {
-	const buf = await fsP.readFile('fixtures/test.jpg');
-	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
+	const input = await fsP.readFile('fixtures/test.jpg');
+
+	t.true((await execa.stdout('./cli.js', {
+		input,
+		encoding: 'buffer'
+	})).length < input.length);
 });
 
 test('optimize a PNG', async t => {
-	const buf = await fsP.readFile('fixtures/test.png');
-	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
+	const input = await fsP.readFile('fixtures/test.png');
+
+	t.true((await execa.stdout('./cli.js', {
+		input,
+		encoding: 'buffer'
+	})).length < input.length);
 });
 
 test('optimize a SVG', async t => {
-	const buf = await fsP.readFile('fixtures/test.svg');
-	t.true((await execa.stdout('./cli.js', {input: buf})).length < buf.length);
+	const input = await fsP.readFile('fixtures/test.svg');
+
+	t.true((await execa.stdout('./cli.js', {
+		input,
+		encoding: 'buffer'
+	})).length < input.length);
 });
 
 test('output error on corrupt images', async t => {
@@ -40,9 +56,17 @@ test('output error on corrupt images', async t => {
 });
 
 test('support plugins', async t => {
-	const buf = await fsP.readFile('fixtures/test.png');
-	const data = await execa.stdout('./cli.js', ['--plugin=pngquant'], {input: buf});
-	const compareData = await execa.stdout('./cli.js', {input: buf});
+	const input = await fsP.readFile('fixtures/test.png');
+	const data = await execa.stdout('./cli.js', ['--plugin=pngquant'], {
+		input,
+		encoding: 'buffer'
+	});
+
+	const compareData = await execa.stdout('./cli.js', {
+		input,
+		encoding: 'buffer'
+	});
+
 	t.true(data.length < compareData.length);
 });
 
@@ -52,7 +76,11 @@ test('error when trying to write multiple files to stdout', async t => {
 });
 
 test('throw on missing plugins', async t => {
-	const buf = await fsP.readFile('fixtures/test.png');
-	const err = await t.throws(execa('./cli.js', ['--plugin=unicorn'], {input: buf}));
+	const input = await fsP.readFile('fixtures/test.png');
+	const err = await t.throws(execa('./cli.js', ['--plugin=unicorn'], {
+		input,
+		encoding: 'buffer'
+	}));
+
 	t.regex(err.stderr, /Unknown plugin: unicorn/);
 });
