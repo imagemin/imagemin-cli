@@ -70,7 +70,9 @@ const run = (input, opts) => {
 		filtered.forEach(dir => {
 			// recursively run for each directory found
 			const children = fs.readdirSync(dir).map(f => path.join(dir, f));
-			run(children, Object.assign({outDir: path.join(opts.outDir, dir)}, opts));
+			run(children, Object.assign({}, opts, {
+				outDir: path.join(opts.outDir, path.parse(dir).name)
+			}));
 		});
 
 		if (filtered.length === input.length) {
