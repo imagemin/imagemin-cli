@@ -32,6 +32,9 @@ const cli = meow(`
 		'plugin',
 		'out-dir'
 	],
+	boolean: [
+		'recursive'
+	],
 	alias: {
 		p: 'plugin',
 		o: 'out-dir',
