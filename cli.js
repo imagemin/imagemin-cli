@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
 const arrify = require('arrify');
 const meow = require('meow');
 const getStdin = require('get-stdin');
@@ -17,16 +18,21 @@ const cli = meow(`
 	Options
 	  -p, --plugin   Override the default plugins
 	  -o, --out-dir  Output directory
+	  --overwrite    Overwrite the original file with a minified version
 
 	Examples
 	  $ imagemin images/* --out-dir=build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
+	  $ imagemin --overwrite foo.png
 `, {
 	string: [
 		'plugin',
 		'out-dir'
+	],
+	boolean: [
+		'overwrite'
 	],
 	alias: {
 		p: 'plugin',
@@ -98,12 +104,33 @@ const run = (input, opts) => {
 		});
 };
 
-if (!cli.input.length && process.stdin.isTTY) {
+const runOverwrite = (input, opts) => {
+	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
+	const use = requirePlugins(arrify(opts.plugin));
+	input.forEach(file => {
+		const origFile = fs.readFileSync(file);
+		imagemin.buffer(origFile, {use})
+			.then(buff => {
+				fs.writeFile(file, buff, err => {
+					if (err) {
+						throw err;
+					}
+				});
+			})
+			.catch(err => {
+				throw err;
+			});
+	});
+};
+
+if ((cli.input.length !== 0 && process.stdin.isTTY) || (cli.input.length !== 0 && cli.flags.overwrite)) {
 	console.error('Specify at least one filename');
 	process.exit(1);
 }
 
-if (cli.input.length) {
+if (cli.flags.overwrite) {
+	runOverwrite(cli.input, cli.flags);
+} else if (cli.input.length > 0) {
 	run(cli.input, cli.flags);
 } else {
 	getStdin.buffer().then(buf => run(buf, cli.flags));
