@@ -52,7 +52,7 @@ test('optimize a SVG', async t => {
 });
 
 test('output error on corrupt images', async t => {
-	t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
+	await t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
 });
 
 test('support plugins', async t => {
