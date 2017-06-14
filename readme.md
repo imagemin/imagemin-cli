@@ -1,4 +1,5 @@
-# imagemin-cli [![Build Status](https://travis-ci.org/imagemin/imagemin-cli.svg?branch=master)](https://travis-ci.org/imagemin/imagemin-cli)
+
+# This is a fork of imagemin-cli [![Build Status](https://travis-ci.org/imagemin/imagemin-cli.svg?branch=master)](https://travis-ci.org/imagemin/imagemin-cli) for a specific use
 
 > Minify and recursive override all the existing images in all subfolders
 
@@ -6,7 +7,7 @@
 ## Install
 
 ```
-$ npm install --global imagemin-cli
+$ npm install --global soleromel/imagemin-cli-recursive
 ```
 
 
