@@ -14,9 +14,6 @@
   "engines": {
     "node": ">=4"
   },
-  "scripts": {
-    "test": "xo && ava"
-  },
   "files": [
     "cli.js"
   ],
@@ -42,26 +39,10 @@
     "plur": "^2.1.2",
     "strip-indent": "^2.0.0"
   },
-  "devDependencies": {
-    "ava": "*",
-    "eslint-plugin-node": "^1.3.0",
-    "execa": "^0.4.0",
-    "imagemin-pngquant": "^5.0.0",
-    "pify": "^2.3.0",
-    "xo": "*"
-  },
   "optionalDependencies": {
     "imagemin-gifsicle": "^5.0.0",
     "imagemin-jpegtran": "^5.0.0",
     "imagemin-optipng": "^5.0.0",
     "imagemin-svgo": "^5.0.0"
-  },
-  "xo": {
-    "plugins": [
-      "node"
-    ],
-    "rules": {
-      "node/process-exit-as-throw": 2
-    }
   }
 }
