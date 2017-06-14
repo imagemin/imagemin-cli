@@ -7,45 +7,41 @@ const imagemin = require('imagemin');
 const ora = require('ora');
 const plur = require('plur');
 const stripIndent = require('strip-indent');
+const fs = require('fs')
+const path = require('path')
 
 const cli = meow(`
+    /** will minify and override all the existing images in all subfolders **/
+
 	Usage
-	  $ imagemin <path|glob> ... --out-dir=build [--plugin=<name> ...]
-	  $ imagemin <file> > <output>
+	  $ imagemin <path|glob> [--plugin=<name> ...]
 	  $ cat <file> | imagemin > <output>
 
-	Options
-	  -p, --plugin   Override the default plugins
-	  -o, --out-dir  Output directory
-
 	Examples
-	  $ imagemin images/* --out-dir=build
-	  $ imagemin foo.png > foo-optimized.png
-	  $ cat foo.png | imagemin > foo-optimized.png
-	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
+	  $ imagemin images/*
+	  
+
 `, {
-	string: [
-		'plugin',
-		'out-dir'
-	],
-	alias: {
-		p: 'plugin',
-		o: 'out-dir'
-	}
+    string: [
+        'plugin',
+    ],
+    alias: {
+        p: 'plugin',
+    }
 });
 
 const DEFAULT_PLUGINS = [
-	'gifsicle',
-	'jpegtran',
-	'optipng',
-	'svgo'
+    'gifsicle',
+    'jpegtran',
+    'optipng',
+    'svgo'
 ];
 
 const requirePlugins = plugins => plugins.map(x => {
-	try {
-		return require(`imagemin-${x}`)();
-	} catch (err) {
-		console.error(stripIndent(`
+    try {
+        return require(`imagemin-${x}`)();
+    } catch (err) {
+        console.error(stripIndent(`
 			Unknown plugin: ${x}
 
 			Did you forgot to install the plugin?
@@ -53,58 +49,73 @@ const requirePlugins = plugins => plugins.map(x => {
 
 			  $ npm install -g imagemin-${x}
 		`).trim());
-		process.exit(1);
-	}
+        process.exit(1);
+    }
 });
 
 const run = (input, opts) => {
-	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
+    opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
 
-	const use = requirePlugins(arrify(opts.plugin));
-	const spinner = ora('Minifying images');
+    const use = requirePlugins(arrify(opts.plugin));
+    const spinner = ora('Minifying images');
 
-	if (Buffer.isBuffer(input)) {
-		imagemin.buffer(input, {use}).then(buf => process.stdout.write(buf));
-		return;
-	}
+    let getAllDirectories = srcpath => {
+        let directories = [srcpath]
+        let getDirectories = srcpath => {
+            let folders = fs.readdirSync(srcpath).filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory())
+            if (folders.length !== 0) {
+                for (let i = 0; i < folders.length; i++) {
+                    directories.push(srcpath + '/' + folders[i])
+                    getDirectories(srcpath + '/' + folders[i])
+                }
+            }
+        }
+        getDirectories(srcpath)
+        return directories
+    }
+    let dirs = getAllDirectories(input[0]);
 
-	if (opts.outDir) {
-		spinner.start();
-	}
+    for (let i=0; i < dirs.length; i++) {
+        spinner.start();
 
-	imagemin(input, opts.outDir, {use})
-		.then(files => {
-			if (!opts.outDir && files.length === 0) {
-				return;
-			}
+        input = [dirs[i]+'/*']
+        if (Buffer.isBuffer(input)) {
+            imagemin.buffer(input, {use}).then(buf => process.stdout.write(buf));
+            return;
+        }
+        imagemin(input, dirs[i], {use})
+            .then(files => {
+                if (!dirs[i] && files.length === 0) {
+                    return;
+                }
 
-			if (!opts.outDir && files.length > 1) {
-				console.error('Cannot write multiple files to stdout, specify a `--out-dir`');
-				process.exit(1);
-			}
+                if (!dirs[i] && files.length > 1) {
+                    console.error('Cannot write multiple files to stdout');
+                    process.exit(1);
+                }
 
-			if (!opts.outDir) {
-				process.stdout.write(files[0].data);
-				return;
-			}
+                if (!dirs[i]) {
+                    process.stdout.write(files[0].data);
+                    return;
+                }
 
-			spinner.stop();
-
-			console.log(`${files.length} ${plur('image', files.length)} minified`);
-		})
-		.catch(err => {
-			spinner.stop();
-			throw err;
-		});
+                spinner.stop();
+                console.log(`${files.length} ${plur('image', files.length)} minified in ${dirs[i]}`);
+            })
+            .catch(err => {
+                spinner.stop();
+                throw err;
+            });
+    }
 };
 
 if (!cli.input.length && process.stdin.isTTY) {
-	console.error('Specify at least one filename');
-	process.exit(1);
+    console.error('Specify at least one filename');
+    process.exit(1);
 }
 
 if (cli.input.length) {
-	run(cli.input, cli.flags);
+    run(cli.input, cli.flags);
 } else {
-	getStdin.buffer().then(buf => run(buf, cli.flags));
+    getStdin.buffer().then(buf => run(buf, cli.flags));
 }
