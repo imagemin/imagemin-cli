@@ -1,25 +1,13 @@
 {
-  "name": "imagemin-cli",
-  "version": "3.0.0",
-  "description": "Minify images",
+  "name": "imagemin-cli-recursive",
+  "version": "0.10",
+  "description": "Fork of imagemin/imagemin-cli for custom use",
   "license": "MIT",
-  "repository": "imagemin/imagemin-cli",
+  "repository": "soleromel/imagemin-cli-recursive",
   "author": {
-    "name": "Kevin Mårtensson",
-    "email": "kevinmartensson@gmail.com",
-    "url": "github.com/kevva"
+    "name": "soleromel",
+    "url": "github.com/soleromel"
   },
-  "maintainers": [
-    {
-      "name": "Sindre Sorhus",
-      "email": "sindresorhus@gmail.com",
-      "url": "sindresorhus.com"
-    },
-    {
-      "name": "Shinnosuke Watanabe",
-      "url": "github.com/shinnn"
-    }
-  ],
   "bin": {
     "imagemin": "cli.js"
   },
