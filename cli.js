@@ -48,7 +48,7 @@ const requirePlugins = plugins => plugins.map(x => {
 		console.error(stripIndent(`
 			Unknown plugin: ${x}
 
-			Did you forgot to install the plugin?
+			Did you forget to install the plugin?
 			You can install it with:
 
 			  $ npm install -g imagemin-${x}
