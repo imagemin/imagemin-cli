@@ -51,10 +51,6 @@ test('optimize a SVG', async t => {
 	})).length < input.length);
 });
 
-test('output error on corrupt images', async t => {
-	t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
-});
-
 test('support plugins', async t => {
 	const input = await fsP.readFile('fixtures/test.png');
 	const data = await execa.stdout('./cli.js', ['--plugin=pngquant'], {
@@ -70,6 +66,10 @@ test('support plugins', async t => {
 	t.true(data.length < compareData.length);
 });
 
+test('output error on corrupt images', async t => {
+	await t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
+});
+
 test('error when trying to write multiple files to stdout', async t => {
 	const err = await t.throws(execa('./cli.js', ['fixtures/test.{jpg,png}']));
 	t.is(err.stderr.trim(), 'Cannot write multiple files to stdout, specify a `--out-dir`');
@@ -82,5 +82,5 @@ test('throw on missing plugins', async t => {
 		encoding: 'buffer'
 	}));
 
-	t.regex(err.stderr, /Unknown plugin: unicorn/);
+	t.regex(err.stderr.toString(), /Unknown plugin: unicorn/);
 });
