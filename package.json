@@ -73,8 +73,7 @@
 			"node"
 		],
 		"rules": {
-			"node/process-exit-as-throw": 2,
-			"node/no-unpublished-bin": 1
+			"node/process-exit-as-throw": 2
 		}
 	}
 }

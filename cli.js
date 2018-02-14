@@ -98,7 +98,7 @@ const run = (input, opts) => {
 		});
 };
 
-if (!cli.input.length > 0 && process.stdin.isTTY) {
+if (cli.input.length === 0 && process.stdin.isTTY) {
 	console.error('Specify at least one filename');
 	process.exit(1);
 }
