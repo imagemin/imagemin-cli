@@ -52,7 +52,7 @@ test('optimize a SVG', async t => {
 });
 
 test('output error on corrupt images', async t => {
-	t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
+	await t.throws(execa('./cli.js', ['fixtures/test-corrupt.jpg']));
 });
 
 test('support plugins', async t => {
@@ -82,5 +82,5 @@ test('throw on missing plugins', async t => {
 		encoding: 'buffer'
 	}));
 
-	t.regex(err.stderr, /Unknown plugin: unicorn/);
+	t.regex(err.stderr.toString(), /Unknown plugin: unicorn/);
 });

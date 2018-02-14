@@ -98,12 +98,12 @@ const run = (input, opts) => {
 		});
 };
 
-if (!cli.input.length && process.stdin.isTTY) {
+if (cli.input.length === 0 && process.stdin.isTTY) {
 	console.error('Specify at least one filename');
 	process.exit(1);
 }
 
-if (cli.input.length) {
+if (cli.input.length > 0) {
 	run(cli.input, cli.flags);
 } else {
 	getStdin.buffer().then(buf => run(buf, cli.flags));
