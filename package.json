@@ -24,7 +24,7 @@
 		"imagemin": "cli.js"
 	},
 	"engines": {
-		"node": ">=4"
+		"node": ">=6"
 	},
 	"scripts": {
 		"test": "xo && ava"
@@ -47,19 +47,19 @@
 	],
 	"dependencies": {
 		"arrify": "^1.0.1",
-		"get-stdin": "^5.0.1",
+		"get-stdin": "^6.0.0",
 		"imagemin": "^6.0.0",
-		"meow": "^3.6.0",
-		"ora": "^0.2.1",
-		"plur": "^2.1.2",
+		"meow": "^5.0.0",
+		"ora": "^3.0.0",
+		"plur": "^3.0.1",
 		"strip-indent": "^2.0.0"
 	},
 	"devDependencies": {
-		"ava": "*",
-		"execa": "^0.4.0",
+		"ava": "^0.25.0",
+		"execa": "^1.0.0",
 		"imagemin-pngquant": "^6.0.0",
-		"pify": "^2.3.0",
-		"xo": "*"
+		"pify": "^4.0.1",
+		"xo": "^0.23.0"
 	},
 	"optionalDependencies": {
 		"imagemin-gifsicle": "^6.0.0",
