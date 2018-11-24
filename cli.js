@@ -44,7 +44,7 @@ const DEFAULT_PLUGINS = [
 const requirePlugins = plugins => plugins.map(x => {
 	try {
 		return require(`imagemin-${x}`)();
-	} catch (err) {
+	} catch (_) {
 		console.error(stripIndent(`
 			Unknown plugin: ${x}
 
@@ -92,9 +92,9 @@ const run = (input, opts) => {
 
 			console.log(`${files.length} ${plur('image', files.length)} minified`);
 		})
-		.catch(err => {
+		.catch(error => {
 			spinner.stop();
-			throw err;
+			throw error;
 		});
 };
 

@@ -48,7 +48,7 @@
 	"dependencies": {
 		"arrify": "^1.0.1",
 		"get-stdin": "^5.0.1",
-		"imagemin": "^5.0.0",
+		"imagemin": "^6.0.0",
 		"meow": "^3.6.0",
 		"ora": "^0.2.1",
 		"plur": "^2.1.2",
@@ -57,15 +57,15 @@
 	"devDependencies": {
 		"ava": "*",
 		"execa": "^0.4.0",
-		"imagemin-pngquant": "^5.0.0",
+		"imagemin-pngquant": "^6.0.0",
 		"pify": "^2.3.0",
 		"xo": "*"
 	},
 	"optionalDependencies": {
-		"imagemin-gifsicle": "^5.0.0",
-		"imagemin-jpegtran": "^5.0.0",
-		"imagemin-optipng": "^5.0.0",
-		"imagemin-svgo": "^5.0.0"
+		"imagemin-gifsicle": "^6.0.0",
+		"imagemin-jpegtran": "^6.0.0",
+		"imagemin-optipng": "^6.0.0",
+		"imagemin-svgo": "^7.0.0"
 	},
 	"xo": {
 		"rules": {
