@@ -24,13 +24,13 @@ const cli = meow(`
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
 `, {
-	string: [
-		'plugin',
-		'out-dir'
-	],
-	alias: {
-		p: 'plugin',
-		o: 'out-dir'
+	plugin: {
+		type: 'string',
+		alias: 'p'
+	},
+	outDir: {
+		type: 'string',
+		alias: 'o'
 	}
 });
 
