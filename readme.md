@@ -23,8 +23,8 @@ $ imagemin --help
     $ cat <file> | imagemin > <output>
 
   Options
-    -p, --plugin   Override the default plugins
-    -o, --out-dir  Output directory
+    --plugin, -p   Override the default plugins
+    --out-dir, -o  Output directory
 
   Examples
     $ imagemin images/* --out-dir=build
@@ -37,8 +37,3 @@ $ imagemin --help
 ## Related
 
 - [imagemin](https://github.com/imagemin/imagemin) - API for this module
-
-
-## License
-
-MIT © [imagemin](https://github.com/imagemin)

@@ -1,30 +1,14 @@
 {
 	"name": "imagemin-cli",
 	"version": "4.0.1",
-	"description": "Minify images",
+	"description": "Minify images seamlessly",
 	"license": "MIT",
 	"repository": "imagemin/imagemin-cli",
-	"author": {
-		"name": "Kevin Mårtensson",
-		"email": "kevinmartensson@gmail.com",
-		"url": "github.com/kevva"
-	},
-	"maintainers": [
-		{
-			"name": "Sindre Sorhus",
-			"email": "sindresorhus@gmail.com",
-			"url": "sindresorhus.com"
-		},
-		{
-			"name": "Shinnosuke Watanabe",
-			"url": "github.com/shinnn"
-		}
-	],
 	"bin": {
 		"imagemin": "cli.js"
 	},
 	"engines": {
-		"node": ">=6"
+		"node": ">=8"
 	},
 	"scripts": {
 		"test": "xo && ava"
@@ -46,19 +30,18 @@
 		"svg"
 	],
 	"dependencies": {
-		"arrify": "^1.0.1",
-		"get-stdin": "^6.0.0",
-		"imagemin": "^6.0.0",
+		"arrify": "^2.0.1",
+		"get-stdin": "^7.0.0",
+		"imagemin": "^7.0.0",
 		"meow": "^5.0.0",
 		"ora": "^3.0.0",
 		"plur": "^3.0.1",
-		"strip-indent": "^2.0.0"
+		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
-		"ava": "^1.3.1",
-		"execa": "^1.0.0",
-		"imagemin-pngquant": "^7.0.0",
-		"pify": "^4.0.1",
+		"ava": "^2.1.0",
+		"execa": "^2.0.1",
+		"imagemin-pngquant": "^8.0.0",
 		"xo": "^0.24.0"
 	},
 	"optionalDependencies": {

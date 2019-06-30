@@ -15,8 +15,8 @@ const cli = meow(`
 	  $ cat <file> | imagemin > <output>
 
 	Options
-	  -p, --plugin   Override the default plugins
-	  -o, --out-dir  Output directory
+	  --plugin, -p   Override the default plugins
+	  --out-dir, -o  Output directory
 
 	Examples
 	  $ imagemin images/* --out-dir=build
@@ -41,70 +41,73 @@ const DEFAULT_PLUGINS = [
 	'svgo'
 ];
 
-const requirePlugins = plugins => plugins.map(x => {
+const requirePlugins = plugins => plugins.map(plugin => {
 	try {
-		return require(`imagemin-${x}`)();
+		return require(`imagemin-${plugin}`)();
 	} catch (_) {
 		console.error(stripIndent(`
-			Unknown plugin: ${x}
+			Unknown plugin: ${plugin}
 
 			Did you forget to install the plugin?
 			You can install it with:
 
-			  $ npm install -g imagemin-${x}
+			  $ npm install -g imagemin-${plugin}
 		`).trim());
+
 		process.exit(1);
 	}
 });
 
-const run = (input, opts) => {
-	opts = Object.assign({plugin: DEFAULT_PLUGINS}, opts);
-
-	const use = requirePlugins(arrify(opts.plugin));
+const run = async (input, {outDir, plugin = DEFAULT_PLUGINS} = {}) => {
+	const plugins = requirePlugins(arrify(plugin));
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
-		imagemin.buffer(input, {use}).then(buf => process.stdout.write(buf));
+		process.stdout.write(await imagemin.buffer(input, {plugins}));
 		return;
 	}
 
-	if (opts.outDir) {
+	if (outDir) {
 		spinner.start();
 	}
 
-	imagemin(input, opts.outDir, {use})
-		.then(files => {
-			if (!opts.outDir && files.length === 0) {
-				return;
-			}
+	let files;
+	try {
+		files = await imagemin(input, {destination: outDir, plugins});
+	} catch (error) {
+		spinner.stop();
+		throw error;
+	}
 
-			if (!opts.outDir && files.length > 1) {
-				console.error('Cannot write multiple files to stdout, specify a `--out-dir`');
-				process.exit(1);
-			}
+	if (!outDir && files.length === 0) {
+		return;
+	}
 
-			if (!opts.outDir) {
-				process.stdout.write(files[0].data);
-				return;
-			}
+	if (!outDir && files.length > 1) {
+		console.error('Cannot write multiple files to stdout, specify `--out-dir`');
+		process.exit(1);
+	}
 
-			spinner.stop();
+	if (!outDir) {
+		process.stdout.write(files[0].data);
+		return;
+	}
 
-			console.log(`${files.length} ${plur('image', files.length)} minified`);
-		})
-		.catch(error => {
-			spinner.stop();
-			throw error;
-		});
+	spinner.stop();
+
+	console.log(`${files.length} ${plur('image', files.length)} minified`);
 };
 
 if (cli.input.length === 0 && process.stdin.isTTY) {
-	console.error('Specify at least one filename');
+	console.error('Specify at least one file path');
 	process.exit(1);
 }
 
-if (cli.input.length > 0) {
-	run(cli.input, cli.flags);
-} else {
-	getStdin.buffer().then(buf => run(buf, cli.flags));
-}
+(async () => {
+	if (cli.input.length > 0) {
+		await run(cli.input, cli.flags);
+	} else {
+		await run(await getStdin.buffer(), cli.flags);
+	}
+})();
+
