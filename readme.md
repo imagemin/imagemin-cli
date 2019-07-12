@@ -2,6 +2,20 @@
 
 > Minify images
 
+---
+
+<div align="center">
+	<sup>Gumlet is helping make open source sustainable by sponsoring Sindre Sorhus.</sup>
+	<a href="https://www.gumlet.com">
+		<div>
+			<img src="https://sindresorhus.com/assets/thanks/gumlet-logo.svg" width="300"/>
+		</div>
+		<sup><b>Optimised Image Delivery made simple</b></sup>
+	</a>
+</div>
+
+---
+
 *Issues with the output should be reported on the `imagemin` [issue tracker](https://github.com/imagemin/imagemin/issues).*
 
 
