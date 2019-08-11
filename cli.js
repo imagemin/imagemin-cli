@@ -24,22 +24,19 @@ const cli = meow(`
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
 `, {
-	plugin: {
-		type: 'string',
-		alias: 'p'
-	},
-	outDir: {
-		type: 'string',
-		alias: 'o'
+	flags: {
+		plugin: {
+			type: 'string',
+			alias: 'p',
+			default: ['gifsicle', 'jpegtran', 'optipng', 'svgo']
+		},
+		outDir: {
+			type: 'string',
+			alias: 'o'
+		}
 	}
-});
 
-const DEFAULT_PLUGINS = [
-	'gifsicle',
-	'jpegtran',
-	'optipng',
-	'svgo'
-];
+});
 
 const requirePlugins = plugins => plugins.map(plugin => {
 	try {
@@ -58,7 +55,7 @@ const requirePlugins = plugins => plugins.map(plugin => {
 	}
 });
 
-const run = async (input, {outDir, plugin = DEFAULT_PLUGINS} = {}) => {
+const run = async (input, {outDir, plugin} = {}) => {
 	const plugins = requirePlugins(arrify(plugin));
 	const spinner = ora('Minifying images');
 
