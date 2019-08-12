@@ -7,6 +7,7 @@ const imagemin = require('imagemin');
 const ora = require('ora');
 const plur = require('plur');
 const stripIndent = require('strip-indent');
+const pairs = require('lodash.pairs');
 
 const cli = meow(`
 	Usage
@@ -17,14 +18,14 @@ const cli = meow(`
 	Options
 	  --plugin, -p   Override the default plugins
 	  --out-dir, -o  Output directory
-	  --options,     JSON-formatted imagemin options.
 
 	Examples
 	  $ imagemin images/* --out-dir=build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
-	  $ imagemin --options='{"plugins": [["webp", {"quality": 95}]]}' foo.png > foo.webp
+	  $ imagemin --plugin.pngquant.quality=[0.1,0.2] foo.png > foo-optimized.png
+	  $ imagemin --plugin.webp.quality=95 foo.png > foo.webp
 `, {
 	flags: {
 		plugin: {
@@ -35,20 +36,13 @@ const cli = meow(`
 		outDir: {
 			type: 'string',
 			alias: 'o'
-		},
-		options: {
-			type: 'string'
 		}
 	}
 
 });
 
-const requirePlugin = (plugin, opts = {}) => {
+const requirePlugins = plugins => plugins.map(([plugin, opts]) => {
 	try {
-		if (Array.isArray(plugin)) {
-			return requirePlugin(plugin[0], plugin[1]);
-		}
-
 		return require(`imagemin-${plugin}`)(opts);
 	} catch (_) {
 		console.error(stripIndent(`
@@ -62,27 +56,19 @@ const requirePlugin = (plugin, opts = {}) => {
 
 		process.exit(1);
 	}
+});
+
+const normalizePluginOpts = plugin => {
+	return pairs(arrify(plugin).reduce((m, v) => {
+		return typeof v === 'object' ?
+			{...m, ...v} :
+			{[v]: {}, ...m};
+	}, {}));
 };
 
-const requirePlugins = plugins => plugins.map(requirePlugin);
-
-const parseOptions = options => {
-	try {
-		return options ? JSON.parse(options) : {};
-	} catch (error) {
-		console.error(stripIndent(`
-			'--options' should be valid JSON value.
-
-			See example at https://github.com/imagemin/imagemin#usage
-		`).trim());
-
-		process.exit(1);
-	}
-};
-
-const run = async (input, {outDir, plugin, options} = {}) => {
-	const opts = parseOptions(options);
-	const plugins = requirePlugins(opts.plugins || arrify(plugin));
+const run = async (input, {outDir, plugin} = {}) => {
+	const pluginOpts = normalizePluginOpts(plugin);
+	const plugins = requirePlugins(pluginOpts);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
@@ -96,7 +82,7 @@ const run = async (input, {outDir, plugin, options} = {}) => {
 
 	let files;
 	try {
-		files = await imagemin(input, {destination: outDir, ...opts, plugins});
+		files = await imagemin(input, {destination: outDir, plugins});
 	} catch (error) {
 		spinner.stop();
 		throw error;

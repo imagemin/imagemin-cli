@@ -33,6 +33,7 @@
 		"arrify": "^2.0.1",
 		"get-stdin": "^7.0.0",
 		"imagemin": "^7.0.0",
+		"lodash.pairs": "^3.0.1",
 		"meow": "^5.0.0",
 		"ora": "^3.0.0",
 		"plur": "^3.0.1",
