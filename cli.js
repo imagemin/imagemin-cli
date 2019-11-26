@@ -39,7 +39,7 @@ const DEFAULT_PLUGINS = [
 ];
 
 const DEFAULT_OPTIONS = {
-	webp: { lossless: false }
+	webp: { lossless: true }
 };
 
 const requirePlugins = (plugins, options) => plugins.map(plugin => {
