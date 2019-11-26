@@ -35,15 +35,17 @@ const cli = meow(`
 });
 
 const DEFAULT_PLUGINS = [
-	'gifsicle',
-	'jpegtran',
-	'optipng',
-	'svgo'
+	'webp'
 ];
 
-const requirePlugins = plugins => plugins.map(plugin => {
+const DEFAULT_OPTIONS = {
+	webp: { lossless: false }
+};
+
+const requirePlugins = (plugins, options) => plugins.map(plugin => {
 	try {
-		return require(`imagemin-${plugin}`)();
+		const option = options[plugin];
+		return require(`imagemin-${plugin}`)(option);
 	} catch (_) {
 		console.error(stripIndent(`
 			Unknown plugin: ${plugin}
@@ -58,12 +60,12 @@ const requirePlugins = plugins => plugins.map(plugin => {
 	}
 });
 
-const run = async (input, {outDir, plugin = DEFAULT_PLUGINS} = {}) => {
-	const plugins = requirePlugins(arrify(plugin));
+const run = async (input, { outDir, plugin = DEFAULT_PLUGINS, options = DEFAULT_OPTIONS } = {}) => {
+	const plugins = requirePlugins(arrify(plugin), options);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
-		process.stdout.write(await imagemin.buffer(input, {plugins}));
+		process.stdout.write(await imagemin.buffer(input, { plugins }));
 		return;
 	}
 
@@ -73,7 +75,7 @@ const run = async (input, {outDir, plugin = DEFAULT_PLUGINS} = {}) => {
 
 	let files;
 	try {
-		files = await imagemin(input, {destination: outDir, plugins});
+		files = await imagemin(input, { destination: outDir, plugins });
 	} catch (error) {
 		spinner.stop();
 		throw error;
