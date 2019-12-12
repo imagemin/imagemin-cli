@@ -90,3 +90,19 @@ test('throw on missing plugins', async t => {
 
 	t.regex(error.stderr.toString(), /Unknown plugin: unicorn/);
 });
+
+test('support plugin options', async t => {
+	const input = await readFile('fixtures/test.png');
+
+	const {stdout: data} = await execa('./cli.js', ['--plugin.pngquant.dithering=1'], {
+		input,
+		encoding: 'buffer'
+	});
+
+	const {stdout: compareData} = await execa('./cli.js', {
+		input,
+		encoding: 'buffer'
+	});
+
+	t.true(data.length < compareData.length);
+});

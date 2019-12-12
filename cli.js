@@ -7,6 +7,7 @@ const imagemin = require('imagemin');
 const ora = require('ora');
 const plur = require('plur');
 const stripIndent = require('strip-indent');
+const pairs = require('lodash.pairs');
 
 const cli = meow(`
 	Usage
@@ -23,27 +24,26 @@ const cli = meow(`
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
 	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
+	  $ imagemin --plugin.pngquant.quality={0.1,0.2} foo.png > foo-optimized.png
+	  $ imagemin --plugin.webp.quality=95 --plugin.webp.preset=icon foo.png > foo-icon.webp
 `, {
-	plugin: {
-		type: 'string',
-		alias: 'p'
-	},
-	outDir: {
-		type: 'string',
-		alias: 'o'
+	flags: {
+		plugin: {
+			type: 'string',
+			alias: 'p',
+			default: ['gifsicle', 'jpegtran', 'optipng', 'svgo']
+		},
+		outDir: {
+			type: 'string',
+			alias: 'o'
+		}
 	}
+
 });
 
-const DEFAULT_PLUGINS = [
-	'gifsicle',
-	'jpegtran',
-	'optipng',
-	'svgo'
-];
-
-const requirePlugins = plugins => plugins.map(plugin => {
+const requirePlugins = plugins => plugins.map(([plugin, opts]) => {
 	try {
-		return require(`imagemin-${plugin}`)();
+		return require(`imagemin-${plugin}`)(opts);
 	} catch (_) {
 		console.error(stripIndent(`
 			Unknown plugin: ${plugin}
@@ -58,8 +58,17 @@ const requirePlugins = plugins => plugins.map(plugin => {
 	}
 });
 
-const run = async (input, {outDir, plugin = DEFAULT_PLUGINS} = {}) => {
-	const plugins = requirePlugins(arrify(plugin));
+const normalizePluginOpts = plugin => {
+	return pairs(arrify(plugin).reduce((m, v) => {
+		return typeof v === 'object' ?
+			{...m, ...v} :
+			{[v]: {}, ...m};
+	}, {}));
+};
+
+const run = async (input, {outDir, plugin} = {}) => {
+	const pluginOpts = normalizePluginOpts(plugin);
+	const plugins = requirePlugins(pluginOpts);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
