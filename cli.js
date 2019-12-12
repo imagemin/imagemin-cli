@@ -31,7 +31,12 @@ const cli = meow(`
 		plugin: {
 			type: 'string',
 			alias: 'p',
-			default: ['gifsicle', 'jpegtran', 'optipng', 'svgo']
+			default: [
+				'gifsicle',
+				'jpegtran',
+				'optipng',
+				'svgo'
+			]
 		},
 		outDir: {
 			type: 'string',
@@ -41,9 +46,9 @@ const cli = meow(`
 
 });
 
-const requirePlugins = plugins => plugins.map(([plugin, opts]) => {
+const requirePlugins = plugins => plugins.map(([plugin, options]) => {
 	try {
-		return require(`imagemin-${plugin}`)(opts);
+		return require(`imagemin-${plugin}`)(options);
 	} catch (_) {
 		console.error(stripIndent(`
 			Unknown plugin: ${plugin}
@@ -58,7 +63,7 @@ const requirePlugins = plugins => plugins.map(([plugin, opts]) => {
 	}
 });
 
-const normalizePluginOpts = plugin => {
+const normalizePluginOptions = plugin => {
 	return pairs(arrify(plugin).reduce((m, v) => {
 		return typeof v === 'object' ?
 			{...m, ...v} :
@@ -67,7 +72,7 @@ const normalizePluginOpts = plugin => {
 };
 
 const run = async (input, {outDir, plugin} = {}) => {
-	const pluginOpts = normalizePluginOpts(plugin);
+	const pluginOpts = normalizePluginOptions(plugin);
 	const plugins = requirePlugins(pluginOpts);
 	const spinner = ora('Minifying images');
 

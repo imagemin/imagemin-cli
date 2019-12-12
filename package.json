@@ -4,6 +4,7 @@
 	"description": "Minify images seamlessly",
 	"license": "MIT",
 	"repository": "imagemin/imagemin-cli",
+	"funding": "https://github.com/imagemin/imagemin-cli?sponsor=1",
 	"bin": {
 		"imagemin": "cli.js"
 	},
@@ -35,15 +36,15 @@
 		"imagemin": "^7.0.0",
 		"lodash.pairs": "^3.0.1",
 		"meow": "^5.0.0",
-		"ora": "^3.0.0",
+		"ora": "^4.0.3",
 		"plur": "^3.0.1",
 		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
 		"ava": "^2.1.0",
-		"execa": "^2.0.1",
+		"execa": "^3.4.0",
 		"imagemin-pngquant": "^8.0.0",
-		"xo": "^0.24.0"
+		"xo": "^0.25.3"
 	},
 	"optionalDependencies": {
 		"imagemin-gifsicle": "^6.0.0",
