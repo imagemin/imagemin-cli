@@ -31,6 +31,7 @@ const cli = meow(`
 		plugin: {
 			type: 'string',
 			alias: 'p',
+			isMultiple: true,
 			default: [
 				'gifsicle',
 				'jpegtran',
