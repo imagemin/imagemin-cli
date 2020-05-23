@@ -73,8 +73,8 @@ const normalizePluginOptions = plugin => {
 };
 
 const run = async (input, {outDir, plugin} = {}) => {
-	const pluginOpts = normalizePluginOptions(plugin);
-	const plugins = requirePlugins(pluginOpts);
+	const pluginOptions = normalizePluginOptions(plugin);
+	const plugins = requirePlugins(pluginOptions);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {

@@ -1,7 +1,7 @@
-import {promisify} from 'util';
-import fs from 'fs';
-import execa from 'execa';
-import test from 'ava';
+const {promisify} = require('util');
+const fs = require('fs');
+const execa = require('execa');
+const test = require('ava');
 
 process.chdir(__dirname);
 
