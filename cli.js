@@ -23,9 +23,9 @@ const cli = meow(`
 	  $ imagemin images/* --out-dir=build
 	  $ imagemin foo.png > foo-optimized.png
 	  $ cat foo.png | imagemin > foo-optimized.png
-	  $ imagemin --plugin=pngquant foo.png > foo-optimized.png
-	  $ imagemin --plugin.pngquant.quality={0.1,0.2} foo.png > foo-optimized.png
-	  $ imagemin --plugin.webp.quality=95 --plugin.webp.preset=icon foo.png > foo-icon.webp
+	  $ imagemin foo.png --plugin=pngquant > foo-optimized.png
+	  $ imagemin foo.png --plugin.pngquant.quality={0.1,0.2} > foo-optimized.png
+	  $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 `, {
 	flags: {
 		plugin: {
@@ -44,7 +44,6 @@ const cli = meow(`
 			alias: 'o'
 		}
 	}
-
 });
 
 const requirePlugins = plugins => plugins.map(([plugin, options]) => {
@@ -73,8 +72,8 @@ const normalizePluginOptions = plugin => {
 };
 
 const run = async (input, {outDir, plugin} = {}) => {
-	const pluginOpts = normalizePluginOptions(plugin);
-	const plugins = requirePlugins(pluginOpts);
+	const pluginOptions = normalizePluginOptions(plugin);
+	const plugins = requirePlugins(pluginOptions);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
