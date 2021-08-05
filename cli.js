@@ -1,13 +1,18 @@
 #!/usr/bin/env node
-'use strict';
-const arrify = require('arrify');
-const meow = require('meow');
-const getStdin = require('get-stdin');
-const imagemin = require('imagemin');
-const ora = require('ora');
-const plur = require('plur');
-const stripIndent = require('strip-indent');
-const pairs = require('lodash.pairs');
+
+import {Buffer} from 'node:buffer';
+import {createRequire} from 'node:module';
+import process from 'node:process';
+import arrify from 'arrify';
+import meow from 'meow';
+import getStdin from 'get-stdin';
+import imagemin from 'imagemin';
+import ora from 'ora';
+import plur from 'plur';
+import stripIndent from 'strip-indent';
+import pairs from 'lodash.pairs';
+
+const require = createRequire(import.meta.url);
 
 const cli = meow(`
 	Usage
@@ -27,6 +32,7 @@ const cli = meow(`
 	  $ imagemin foo.png --plugin.pngquant.quality={0.1,0.2} > foo-optimized.png
 	  $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 `, {
+	importMeta: import.meta,
 	flags: {
 		plugin: {
 			type: 'string',
@@ -36,20 +42,20 @@ const cli = meow(`
 				'gifsicle',
 				'jpegtran',
 				'optipng',
-				'svgo'
-			]
+				'svgo',
+			],
 		},
 		outDir: {
 			type: 'string',
-			alias: 'o'
-		}
-	}
+			alias: 'o',
+		},
+	},
 });
 
 const requirePlugins = plugins => plugins.map(([plugin, options]) => {
 	try {
 		return require(`imagemin-${plugin}`)(options);
-	} catch (_) {
+	} catch {
 		console.error(stripIndent(`
 			Unknown plugin: ${plugin}
 
@@ -63,13 +69,13 @@ const requirePlugins = plugins => plugins.map(([plugin, options]) => {
 	}
 });
 
-const normalizePluginOptions = plugin => {
-	return pairs(arrify(plugin).reduce((m, v) => {
-		return typeof v === 'object' ?
-			{...m, ...v} :
-			{[v]: {}, ...m};
-	}, {}));
-};
+const normalizePluginOptions = plugin =>
+	// eslint-disable-next-line unicorn/no-array-reduce
+	pairs(arrify(plugin).reduce((m, v) =>
+		typeof v === 'object'
+			? {...m, ...v}
+			: {[v]: {}, ...m}
+	, {}));
 
 const run = async (input, {outDir, plugin} = {}) => {
 	const pluginOptions = normalizePluginOptions(plugin);
@@ -118,10 +124,9 @@ if (cli.input.length === 0 && process.stdin.isTTY) {
 }
 
 (async () => {
-	if (cli.input.length > 0) {
-		await run(cli.input, cli.flags);
-	} else {
-		await run(await getStdin.buffer(), cli.flags);
-	}
+	await run(
+		cli.input.length > 0
+			? cli.input
+			: await getStdin.buffer(),
+		cli.flags);
 })();
-

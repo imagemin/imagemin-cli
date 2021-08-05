@@ -1,7 +1,15 @@
-const {promisify} = require('util');
-const fs = require('fs');
-const execa = require('execa');
-const test = require('ava');
+import {promisify} from 'node:util';
+import fs from 'node:fs';
+import {dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+import process from 'node:process';
+
+import execa from 'execa';
+import test from 'ava';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 
 process.chdir(__dirname);
 
@@ -17,7 +25,7 @@ test('optimize a GIF', async t => {
 
 	const {stdout} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(stdout.length < input.length);
@@ -28,7 +36,7 @@ test('optimize a JPG', async t => {
 
 	const {stdout} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(stdout.length < input.length);
@@ -39,7 +47,7 @@ test('optimize a PNG', async t => {
 
 	const {stdout} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(stdout.length < input.length);
@@ -50,7 +58,7 @@ test('optimize a SVG', async t => {
 
 	const {stdout} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(stdout.length < input.length);
@@ -65,12 +73,12 @@ test('support plugins', async t => {
 
 	const {stdout: data} = await execa('./cli.js', ['--plugin=pngquant'], {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	const {stdout: compareData} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(data.length < compareData.length);
@@ -85,7 +93,7 @@ test('throw on missing plugins', async t => {
 	const input = await readFile('fixtures/test.png');
 	const error = await t.throwsAsync(execa('./cli.js', ['--plugin=unicorn'], {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	}));
 
 	t.regex(error.stderr.toString(), /Unknown plugin: unicorn/);
@@ -94,15 +102,15 @@ test('throw on missing plugins', async t => {
 test('support plugin options', async t => {
 	const input = await readFile('fixtures/test.png');
 
-	const {stdout: data} = await execa('./cli.js', ['--plugin.pngquant.dithering=1', '--plugin.pngquant.quality={.1,.4}'], {
+	const {stdout: data} = await execa('./cli.js', ['--plugin.pngquant.dithering=1', '--plugin.pngquant.quality={0.1,0.4}'], {
 		input,
 		encoding: 'buffer',
-		shell: true
+		shell: true,
 	});
 
 	const {stdout: compareData} = await execa('./cli.js', {
 		input,
-		encoding: 'buffer'
+		encoding: 'buffer',
 	});
 
 	t.true(data.length < compareData.length);

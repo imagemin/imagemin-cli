@@ -29,10 +29,9 @@ $ imagemin --help
     $ imagemin foo.png > foo-optimized.png
     $ cat foo.png | imagemin > foo-optimized.png
     $ imagemin foo.png --plugin=pngquant > foo-optimized.png
-    $ imagemin foo.png --plugin.pngquant.quality={.5,1} > foo-optimized.png
+    $ imagemin foo.png --plugin.pngquant.quality={0.5,1} > foo-optimized.png
     $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 ```
-⚠️ To pass an argument as a number in `[0, 1]` range trim the first digit: `--param=0.05` → `--param=.05`
 
 ## Related
 

@@ -5,11 +5,12 @@
 	"license": "MIT",
 	"repository": "imagemin/imagemin-cli",
 	"funding": "https://github.com/imagemin/imagemin-cli?sponsor=1",
+	"type": "module",
 	"bin": {
 		"imagemin": "cli.js"
 	},
 	"engines": {
-		"node": ">=10"
+		"node": ">=12.20"
 	},
 	"scripts": {
 		"test": "xo && ava"
@@ -31,26 +32,26 @@
 		"svg"
 	],
 	"dependencies": {
-		"arrify": "^2.0.1",
-		"get-stdin": "^8.0.0",
-		"imagemin": "^7.0.0",
+		"arrify": "^3.0.0",
+		"get-stdin": "^9.0.0",
+		"imagemin": "^8.0.0",
 		"lodash.pairs": "^3.0.1",
-		"meow": "^7.0.1",
-		"ora": "^4.0.3",
+		"meow": "^10.1.1",
+		"ora": "^5.4.1",
 		"plur": "^4.0.0",
-		"strip-indent": "^3.0.0"
+		"strip-indent": "^4.0.0"
 	},
 	"devDependencies": {
-		"ava": "^3.8.0",
-		"execa": "^4.0.0",
-		"imagemin-pngquant": "^8.0.0",
-		"xo": "^0.30.0"
+		"ava": "^3.15.0",
+		"execa": "^5.1.1",
+		"imagemin-pngquant": "^9.0.2",
+		"xo": "^0.43.0"
 	},
 	"optionalDependencies": {
 		"imagemin-gifsicle": "^7.0.0",
-		"imagemin-jpegtran": "^6.0.0",
-		"imagemin-optipng": "^7.0.0",
-		"imagemin-svgo": "^7.0.0"
+		"imagemin-jpegtran": "^7.0.0",
+		"imagemin-optipng": "^8.0.0",
+		"imagemin-svgo": "^9.0.0"
 	},
 	"xo": {
 		"rules": {
