@@ -102,10 +102,9 @@ test('throw on missing plugins', async t => {
 test('support plugin options', async t => {
 	const input = await readFile('fixtures/test.png');
 
-	const {stdout: data} = await execa('./cli.js', ['--plugin.pngquant.dithering=1', '--plugin.pngquant.quality={0.1,0.4}'], {
+	const {stdout: data} = await execa('./cli.js', ['--plugin.pngquant.dithering=1', '--plugin.pngquant.quality=0.1', '--plugin.pngquant.quality=0.4'], {
 		input,
 		encoding: 'buffer',
-		shell: true,
 	});
 
 	const {stdout: compareData} = await execa('./cli.js', {
