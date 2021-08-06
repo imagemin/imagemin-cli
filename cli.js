@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-'use strict';
-const arrify = require('arrify');
-const meow = require('meow');
-const getStdin = require('get-stdin');
-const imagemin = require('imagemin');
-const ora = require('ora');
-const plur = require('plur');
-const stripIndent = require('strip-indent');
-const pairs = require('lodash.pairs');
+import {Buffer} from 'node:buffer';
+import process from 'node:process';
+import arrify from 'arrify';
+import meow from 'meow';
+import getStdin from 'get-stdin';
+import imagemin from 'imagemin';
+import ora from 'ora';
+import plur from 'plur';
+import stripIndent from 'strip-indent';
+import pairs from 'lodash.pairs';
 
 const cli = meow(`
 	Usage
@@ -27,6 +28,7 @@ const cli = meow(`
 	  $ imagemin foo.png --plugin.pngquant.quality={0.1,0.2} > foo-optimized.png
 	  $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 `, {
+	importMeta: import.meta,
 	flags: {
 		plugin: {
 			type: 'string',
@@ -36,20 +38,21 @@ const cli = meow(`
 				'gifsicle',
 				'jpegtran',
 				'optipng',
-				'svgo'
-			]
+				'svgo',
+			],
 		},
 		outDir: {
 			type: 'string',
-			alias: 'o'
-		}
-	}
+			alias: 'o',
+		},
+	},
 });
 
-const requirePlugins = plugins => plugins.map(([plugin, options]) => {
+const requirePlugins = plugins => Promise.all(plugins.map(async ([plugin, options]) => {
 	try {
-		return require(`imagemin-${plugin}`)(options);
-	} catch (_) {
+		const {default: _plugin} = await import(`imagemin-${plugin}`); // eslint-disable-line node/no-unsupported-features/es-syntax
+		return _plugin(options);
+	} catch {
 		console.error(stripIndent(`
 			Unknown plugin: ${plugin}
 
@@ -61,19 +64,26 @@ const requirePlugins = plugins => plugins.map(([plugin, options]) => {
 
 		process.exit(1);
 	}
-});
+}));
 
 const normalizePluginOptions = plugin => {
-	return pairs(arrify(plugin).reduce((m, v) => {
-		return typeof v === 'object' ?
-			{...m, ...v} :
-			{[v]: {}, ...m};
-	}, {}));
+	const pluginOptionsMap = {};
+
+	for (const v of arrify(plugin)) {
+		Object.assign(
+			pluginOptionsMap,
+			typeof v === 'object'
+				? v
+				: {[v]: {}},
+		);
+	}
+
+	return pairs(pluginOptionsMap);
 };
 
 const run = async (input, {outDir, plugin} = {}) => {
 	const pluginOptions = normalizePluginOptions(plugin);
-	const plugins = requirePlugins(pluginOptions);
+	const plugins = await requirePlugins(pluginOptions);
 	const spinner = ora('Minifying images');
 
 	if (Buffer.isBuffer(input)) {
@@ -118,10 +128,9 @@ if (cli.input.length === 0 && process.stdin.isTTY) {
 }
 
 (async () => {
-	if (cli.input.length > 0) {
-		await run(cli.input, cli.flags);
-	} else {
-		await run(await getStdin.buffer(), cli.flags);
-	}
+	await run(
+		cli.input.length > 0
+			? cli.input
+			: await getStdin.buffer(),
+		cli.flags);
 })();
-
