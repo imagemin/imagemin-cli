@@ -33,7 +33,7 @@ $ imagemin --help
     $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 ```
 
-**macOS** users can also use the short CLI syntax for array arguments:
+**non-Windows** users can also use the short CLI syntax for array arguments:
 `--plugin.pngquant.quality={0.5,1}` equals
 `--plugin.pngquant.quality=0.5 --plugin.pngquant.quality=1`
 

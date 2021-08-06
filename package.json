@@ -55,7 +55,10 @@
 	},
 	"xo": {
 		"rules": {
-			"node/process-exit-as-throw": 2
+			"node/process-exit-as-throw": 2,
+			"node/no-unsupported-features/es-syntax": ["error", {
+			 	"ignores": ["dynamicImport"]
+			}]
 		}
 	}
 }

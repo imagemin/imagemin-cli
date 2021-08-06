@@ -2,14 +2,12 @@ import {promisify} from 'node:util';
 import fs from 'node:fs';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {createRequire} from 'node:module';
 import process from 'node:process';
 
 import execa from 'execa';
 import test from 'ava';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
 
 process.chdir(__dirname);
 
@@ -17,7 +15,7 @@ const readFile = promisify(fs.readFile);
 
 test('show version', async t => {
 	const {stdout} = await execa('./cli.js', ['--version']);
-	t.is(stdout, require('./package.json').version);
+	t.is(stdout, JSON.parse(await readFile('./package.json')).version);
 });
 
 test('optimize a GIF', async t => {
