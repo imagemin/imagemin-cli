@@ -1,4 +1,4 @@
-# imagemin-cli [![CI](https://github.com/imagemin/imagemin-cli/workflows/CI/badge.svg)](https://github.com/imagemin/imagemin-cli/actions)
+# imagemin-cli
 
 > Minify images
 
