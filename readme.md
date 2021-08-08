@@ -1,4 +1,4 @@
-# imagemin-cli [![Build Status](https://travis-ci.com/imagemin/imagemin-cli.svg?branch=master)](https://travis-ci.com/github/imagemin/imagemin-cli)
+# imagemin-cli
 
 > Minify images
 
@@ -29,13 +29,11 @@ $ imagemin --help
     $ imagemin foo.png > foo-optimized.png
     $ cat foo.png | imagemin > foo-optimized.png
     $ imagemin foo.png --plugin=pngquant > foo-optimized.png
-    $ imagemin foo.png --plugin.pngquant.quality=0.5 --plugin.pngquant.quality=1 > foo-optimized.png
+    $ imagemin foo.png --plugin.pngquant.quality=0.1 --plugin.pngquant.quality=0.2 > foo-optimized.png
+    # Non-Windows platforms may support the short CLI syntax for array arguments
+    $ imagemin foo.png --plugin.pngquant.quality={0.1,0.2} > foo-optimized.png
     $ imagemin foo.png --plugin.webp.quality=95 --plugin.webp.preset=icon > foo-icon.webp
 ```
-
-**non-Windows** users can also use the short CLI syntax for array arguments:
-`--plugin.pngquant.quality={0.5,1}` equals
-`--plugin.pngquant.quality=0.5 --plugin.pngquant.quality=1`
 
 ## Related
 
